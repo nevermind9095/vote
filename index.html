@@ -1,0 +1,1104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E2B45">
+<title>投票委員會</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --ink:#1E2B45; --ink-2:#3A4866; --paper:#F3F5EE; --paper-2:#E6EBDF; --line:#C9D2C1;
+  --muted:#667064; --stamp:#C42A2F; --stamp-soft:#F3D9D6;
+  --board:#24382F; --board-2:#2C443A; --chalk:#EEF0E6; --chalk-dim:#A9B8AE; --chalk-y:#E9D46B;
+  --ok:#2F6B4F;
+  --serif:"Noto Serif TC",serif; --sans:"Noto Sans TC",system-ui,sans-serif; --hand:"LXGW WenKai TC","Noto Serif TC",serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--sans);color:var(--ink);background:var(--paper);font-size:17px;line-height:1.6;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;cursor:pointer}
+input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #6C8BD6;outline-offset:2px}
+[hidden]{display:none!important}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* buttons */
+.btn{border:1.5px solid var(--ink);background:transparent;border-radius:8px;padding:.55em 1.1em;font-weight:500;transition:background .15s}
+.btn:hover{background:var(--paper-2)}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary:hover{background:var(--ink-2)}
+.btn.danger{border-color:var(--stamp);color:var(--stamp)}
+.btn.danger:hover{background:var(--stamp-soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.big{font-size:1.15em;padding:.7em 1.6em}
+.link{background:none;border:0;padding:0;color:var(--ink-2);text-decoration:underline;text-underline-offset:3px}
+
+/* stamp mark (圈選章) */
+.mark{width:100%;height:100%;color:var(--stamp);display:block}
+
+/* ---------- boot / login ---------- */
+#boot{display:grid;place-items:center;height:100%;color:var(--muted)}
+#login{min-height:100%;display:grid;place-items:center;padding:24px}
+.login-card{max-width:520px;text-align:center}
+.login-card .seal{width:120px;height:120px;margin:0 auto 18px;transform:rotate(-8deg)}
+.login-card h1{font-family:var(--serif);font-weight:900;font-size:clamp(34px,6vw,52px);letter-spacing:.08em;margin:0 0 8px}
+.login-card p{color:var(--muted);margin:0 0 28px}
+.login-card .actions{display:flex;flex-direction:column;gap:14px;align-items:center}
+.login-err{color:var(--stamp);margin-top:18px;white-space:pre-line}
+.login-note{font-size:14px;margin:0!important;line-height:1.7}
+.takeover{font-size:15px}
+.takeover summary{cursor:pointer;color:var(--ink-2)}
+.takeover form{display:flex;gap:8px;margin-top:10px;justify-content:center}
+.takeover input{border:1.5px solid var(--line);border-radius:8px;padding:.45em .7em;width:150px;text-transform:uppercase;letter-spacing:.12em;font-weight:700;text-align:center}
+.room-code{text-align:center;font-size:14px;color:var(--muted);margin-top:-6px}
+.room-code b{font-family:var(--serif);font-size:18px;color:var(--ink);letter-spacing:.12em}
+
+/* ---------- teacher ---------- */
+#teacher{min-height:100%;display:flex;flex-direction:column}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:12px 28px;background:var(--ink);color:#fff;gap:16px}
+.brand{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-weight:900;font-size:22px;letter-spacing:.06em}
+.brand .seal{width:34px;height:34px;color:#F06A6E}
+.bar nav{display:flex;gap:6px;flex-wrap:wrap}
+.bar nav button{background:none;border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:6px;padding:.3em .9em;font-size:15px}
+.bar nav button:hover{background:rgba(255,255,255,.1)}
+.demo-flag{background:var(--chalk-y);color:var(--ink);font-family:var(--sans);font-size:13px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0}
+.layout{flex:1;display:grid;grid-template-columns:340px 1fr;min-height:0}
+.hall{border-right:1px solid var(--line);padding:22px;display:flex;flex-direction:column;gap:16px;background:var(--paper)}
+.qr-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;text-align:center;cursor:zoom-in}
+.qr-card #qr{display:grid;place-items:center;min-height:200px}
+.qr-card #qr img,.qr-card #qr canvas{width:200px;height:200px}
+.qr-card p{margin:10px 0 0;font-weight:700}
+.qr-card small{color:var(--muted)}
+.hall-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.stat b{display:block;font-family:var(--serif);font-size:28px;line-height:1.2}
+.stat span{font-size:14px;color:var(--muted)}
+.seats{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.seat{aspect-ratio:1;border:1.5px dashed var(--line);border-radius:7px;background:transparent;font-weight:700;font-size:16px;color:var(--muted);display:grid;place-items:center;padding:0;position:relative}
+.seat.present{border:1.5px solid var(--ink);color:var(--ink);background:#fff}
+.seat.voted{background:var(--ink);border-color:var(--ink);color:#fff}
+.seat.sel{outline:3px solid var(--stamp);outline-offset:1px}
+.legend{display:flex;gap:14px;font-size:13px;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:4px}
+.legend .l0{border:1.5px dashed var(--line)}.legend .l1{border:1.5px solid var(--ink);background:#fff}.legend .l2{background:var(--ink)}
+.hall-foot{margin-top:auto;font-size:14px}
+
+.stage{padding:28px 36px;overflow:auto;min-width:0}
+
+/* setup form */
+.setup{max-width:760px}
+.setup h2{font-family:var(--serif);font-size:30px;margin:0 0 4px}
+.setup .sub{color:var(--muted);margin:0 0 22px}
+.field{margin-bottom:20px}
+.field>label,.field>.lab{display:block;font-weight:700;margin-bottom:6px}
+.field input[type=text],.field textarea{width:100%;border:1.5px solid var(--line);border-radius:8px;padding:.6em .8em;background:#fff}
+.field textarea{resize:vertical;min-height:170px;line-height:1.7}
+.field input:focus,.field textarea:focus{border-color:var(--ink);outline:none}
+.seg{display:inline-flex;border:1.5px solid var(--ink);border-radius:10px;overflow:hidden;margin:0 0 22px}
+.seg button{border:0;background:#fff;padding:.55em 1.3em;font-weight:500}
+.seg button+button{border-left:1.5px solid var(--ink)}
+.seg button.on{background:var(--ink);color:#fff}
+.toggle.named{margin:0 0 14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:.2em .8em;font-size:15px}
+.chip:hover{border-color:var(--ink)}
+.chip.done{color:var(--muted);text-decoration:line-through;background:var(--paper-2)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:8px;background:#fff;overflow:hidden}
+.stepper button{border:0;background:var(--paper-2);width:44px;height:44px;font-size:22px}
+.stepper output{min-width:56px;text-align:center;font-family:var(--serif);font-size:22px;font-weight:600}
+.rule-line{background:#fff;border-left:4px solid var(--stamp);padding:10px 14px;margin:6px 0 22px;border-radius:0 8px 8px 0}
+.form-err{color:var(--stamp);font-weight:500;margin:-8px 0 14px}
+.opt-tools{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+
+/* blackboard */
+.board{background:var(--board);color:var(--chalk);border-radius:14px;padding:26px 32px 30px;box-shadow:inset 0 0 0 10px #5B4632, inset 0 0 0 12px #3E2F22;position:relative;font-family:var(--hand)}
+.board-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;padding:6px 8px 0}
+.board-title{font-size:44px;font-weight:700;line-height:1.2;margin:0}
+.board-meta{color:var(--chalk-dim);font-size:20px;margin-top:4px}
+.board-status{font-size:22px;font-weight:700;padding:4px 14px;border:2px solid var(--chalk-y);color:var(--chalk-y);border-radius:6px;white-space:nowrap}
+.board-status.live{animation:blink 2s ease-in-out infinite}
+@keyframes blink{50%{opacity:.45}}
+.progress{height:8px;background:rgba(255,255,255,.12);border-radius:4px;margin:4px 8px 18px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--chalk-y);transition:width .4s}
+.cand{display:grid;grid-template-columns:44px minmax(140px,240px) 1fr 70px;align-items:center;gap:14px;padding:12px 8px;border-top:1px dashed rgba(238,240,230,.22);position:relative}
+.cand .no{font-size:22px;color:var(--chalk-dim);text-align:center}
+.cand .name{font-size:30px;font-weight:700;line-height:1.25;word-break:break-all}
+.cand .tally{display:flex;flex-wrap:wrap;gap:4px;min-height:44px;align-items:center}
+.cand .count{font-size:40px;font-weight:700;text-align:right;color:var(--chalk-y)}
+.cand .voters{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:4px;font-family:var(--sans);font-size:14px;margin-top:-4px}
+.cand .voters span{border:1px solid rgba(238,240,230,.35);border-radius:4px;padding:0 6px;color:var(--chalk-dim)}
+.cand.lose .name,.cand.lose .count{opacity:.55}
+.veiled{font-size:22px;color:var(--chalk-dim);letter-spacing:.1em}
+.tg{width:42px;height:42px;flex:none}
+.tg path{fill:none;stroke:var(--chalk);stroke-width:3.6;stroke-linecap:round}
+.tg path.new{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .22s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.win{position:absolute;right:96px;top:50%;font-family:var(--serif);font-weight:900;color:#fff;background:var(--stamp);border:3px double #fff;padding:2px 12px;font-size:24px;letter-spacing:.15em;transform:translateY(-50%) rotate(-9deg) scale(1);opacity:0;animation:stampIn .35s cubic-bezier(.2,1.6,.4,1) forwards;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.win.tie{background:transparent;color:var(--chalk-y);border-color:var(--chalk-y)}
+@keyframes stampIn{from{opacity:0;transform:translateY(-50%) rotate(-9deg) scale(2.2)}to{opacity:1;transform:translateY(-50%) rotate(-9deg) scale(1)}}
+.board-note{margin:16px 8px 0;font-size:22px;color:var(--chalk-y)}
+.actions{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 0;align-items:center}
+.actions .spacer{flex:1}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-weight:500;cursor:pointer;user-select:none}
+.toggle input{width:20px;height:20px;accent-color:var(--ink)}
+.empty-board{padding:40px 8px;font-size:24px;color:var(--chalk-dim)}
+
+/* popover */
+.pop{position:fixed;z-index:30;background:#fff;border:1.5px solid var(--ink);border-radius:10px;padding:14px 16px;width:260px;box-shadow:0 10px 30px rgba(30,43,69,.25)}
+.pop h4{margin:0 0 6px;font-family:var(--serif);font-size:20px}
+.pop p{margin:0 0 12px}
+.pop .x{position:absolute;right:8px;top:6px;border:0;background:none;font-size:20px}
+
+/* dialogs */
+dialog{border:0;border-radius:14px;padding:0;max-width:min(720px,94vw);width:100%;color:var(--ink);background:var(--paper);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(20,28,45,.55)}
+.dlg-head{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;background:var(--ink);color:#fff}
+.dlg-head h3{margin:0;font-family:var(--serif);font-size:22px}
+.dlg-head button{background:none;border:0;color:#fff;font-size:26px;line-height:1}
+.dlg-body{padding:20px 24px;max-height:72vh;overflow:auto}
+.dlg-foot{padding:14px 24px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--line)}
+#dlgQR{max-width:none;width:auto;background:#fff}
+.qr-huge{padding:36px 48px;text-align:center}
+.qr-huge #qrHuge img,.qr-huge #qrHuge canvas{width:min(70vh,560px);height:min(70vh,560px)}
+.qr-huge h2{font-family:var(--serif);font-size:40px;margin:0 0 18px}
+.qr-huge p{color:var(--muted);word-break:break-all;margin:14px 0 0;font-size:15px}
+.set-code{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:0 0 18px;font-size:15px}
+.set-code b{font-family:var(--serif);font-size:20px;letter-spacing:.12em}
+.hist-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px}
+.hist-item h4{margin:0;font-family:var(--serif);font-size:19px}
+.hist-item .meta{color:var(--muted);font-size:14px}
+.hist-item .res{margin-top:4px}
+.hist-item .res b{color:var(--stamp)}
+.help h4{font-family:var(--serif);font-size:20px;margin:22px 0 6px}
+.help h4:first-child{margin-top:0}
+.help ol,.help ul{padding-left:1.4em;margin:6px 0}
+.help li{margin:4px 0}
+.help pre{background:var(--ink);color:#E8ECF5;padding:12px 14px;border-radius:8px;overflow:auto;font-size:13px;line-height:1.5}
+.help dt{font-weight:700;margin-top:10px}
+.help dd{margin:2px 0 0 0;color:var(--ink-2)}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:999px;z-index:50;font-weight:500;box-shadow:0 6px 20px rgba(0,0,0,.25)}
+.toast.err{background:var(--stamp)}
+
+/* ---------- student ---------- */
+#student{min-height:100%;display:flex;flex-direction:column;background:var(--paper-2)}
+.s-bar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;padding-top:max(12px,env(safe-area-inset-top));background:var(--ink);color:#fff;font-family:var(--serif);font-weight:900;letter-spacing:.05em;font-size:18px}
+.s-bar .tag{font-family:var(--sans);font-weight:700;background:#fff;color:var(--ink);border-radius:999px;padding:1px 12px;font-size:15px;letter-spacing:0}
+#sView{flex:1;display:flex;flex-direction:column;align-items:center;padding:24px 16px 40px}
+.s-center{margin:auto;text-align:center;max-width:520px;width:100%}
+.s-center h2{font-family:var(--serif);font-size:30px;margin:0 0 8px}
+.s-center p{color:var(--muted);margin:0 0 6px;font-size:18px}
+.seat-pick{width:100%;max-width:640px}
+.seat-pick h2{font-family:var(--serif);font-size:28px;text-align:center;margin:4px 0 4px}
+.seat-pick p{text-align:center;color:var(--muted);margin:0 0 18px}
+.seat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:10px}
+.seat-grid button{aspect-ratio:1;border:1.5px solid var(--line);background:#fff;border-radius:12px;font-size:26px;font-weight:700;font-family:var(--serif);position:relative}
+.seat-grid button.taken::after{content:"已有人";position:absolute;left:0;right:0;bottom:4px;font-size:11px;font-family:var(--sans);color:var(--muted);font-weight:500}
+.seat-grid button:active{background:var(--paper-2)}
+.badge-seat{display:inline-grid;place-items:center;width:132px;height:132px;border-radius:50%;border:4px solid var(--ink);font-family:var(--serif);font-weight:900;font-size:64px;margin:6px auto 14px;background:#fff;position:relative}
+.badge-seat small{position:absolute;bottom:14px;font-size:15px;font-family:var(--sans);font-weight:700}
+.waiting-dots span{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ink);margin:0 4px;animation:dot 1.4s infinite}
+.waiting-dots span:nth-child(2){animation-delay:.2s}.waiting-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.s-foot{margin-top:28px}
+
+/* ballot paper */
+.ballot{width:100%;max-width:620px;background:var(--paper);border:1px solid var(--line);border-radius:4px;box-shadow:0 1px 0 #fff inset,0 14px 34px rgba(30,43,69,.14);padding:22px 22px 26px;position:relative;transition:transform .6s cubic-bezier(.6,0,.8,.4),opacity .6s}
+.ballot::before{content:"";position:absolute;inset:8px;border:1.5px solid var(--ink);pointer-events:none;border-radius:2px}
+.ballot-head{text-align:center;padding:8px 10px 14px;border-bottom:1.5px solid var(--ink);margin:0 4px}
+.ballot-head .org{font-size:15px;color:var(--muted)}
+.ballot-head h2{font-family:var(--serif);font-weight:900;font-size:clamp(26px,6vw,36px);margin:2px 0 0;letter-spacing:.06em}
+.ballot-rule{text-align:center;margin:12px 4px 6px;font-weight:700;font-size:18px}
+.ballot-rule em{font-style:normal;color:var(--stamp)}
+.ballot-anon{text-align:center;color:var(--muted);margin:0 0 6px;font-size:15px}
+.ballot-note{text-align:center;color:var(--stamp);font-weight:500;margin:0 0 6px}
+.cands{margin:6px 4px 0;border-top:1.5px solid var(--ink)}
+.c-row{display:grid;grid-template-columns:54px 1fr 92px;align-items:stretch;border-bottom:1.5px solid var(--ink);width:100%;background:transparent;border-left:0;border-right:0;border-top:0;padding:0;text-align:left;min-height:84px}
+.c-row .num{display:grid;place-items:center;border-right:1.5px solid var(--ink);font-family:var(--serif);font-size:22px;font-weight:600}
+.c-row .nm{display:flex;align-items:center;padding:8px 14px;font-family:var(--serif);font-weight:600;font-size:clamp(22px,5vw,30px);line-height:1.25;word-break:break-all}
+.c-row .box{border-left:1.5px solid var(--ink);display:grid;place-items:center;position:relative}
+.c-row .box .mark{width:64px;height:64px;opacity:0;transform:scale(1.8) rotate(var(--rot,0deg));transition:none}
+.c-row.on .box .mark{opacity:.92;transform:scale(1) rotate(var(--rot,0deg));transition:transform .18s cubic-bezier(.2,1.5,.4,1),opacity .1s}
+.c-row:active{background:rgba(30,43,69,.04)}
+.c-row.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ballot-foot{margin:20px 4px 0;display:flex;flex-direction:column;align-items:center;gap:8px}
+.ballot-foot .warn{min-height:1.6em;color:var(--stamp);font-weight:500;text-align:center}
+.ballot.drop{transform:translateY(60vh) scale(.5) rotate(4deg);opacity:0}
+.sheet{position:fixed;inset:0;background:rgba(20,28,45,.55);display:grid;place-items:end center;z-index:40}
+.sheet-card{background:#fff;width:100%;max-width:620px;border-radius:18px 18px 0 0;padding:24px 22px;padding-bottom:max(24px,env(safe-area-inset-bottom));text-align:center;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet-card h3{font-family:var(--serif);font-size:24px;margin:0 0 10px}
+.sheet-card .picks{font-family:var(--serif);font-size:26px;font-weight:600;margin:0 0 20px;line-height:1.5}
+.sheet-card .btns{display:flex;gap:12px;justify-content:center}
+.sheet-card .btns .btn{flex:1;max-width:220px;padding:.8em 1em;font-size:18px}
+.urn{width:180px;height:150px;margin:0 auto 10px;display:block}
+.urn .slip{animation:slip .8s ease-in both}
+@keyframes slip{from{transform:translateY(-60px);opacity:0}60%{opacity:1}to{transform:translateY(18px);opacity:0}}
+.mine{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 16px;margin:18px auto 0;font-family:var(--serif);font-size:20px;max-width:420px}
+.conn{position:fixed;left:0;right:0;top:0;background:var(--stamp);color:#fff;text-align:center;padding:6px;z-index:60;font-weight:500}
+
+@media (max-width: 960px){
+  .layout{grid-template-columns:1fr}
+  .hall{border-right:0;border-bottom:1px solid var(--line)}
+  .seats{grid-template-columns:repeat(auto-fill,minmax(44px,1fr))}
+  .stage{padding:20px 16px}
+  .row2{grid-template-columns:1fr}
+  .cand{grid-template-columns:34px 1fr 56px}
+  .cand .tally{grid-column:2/3;grid-row:2}
+  .cand .name{font-size:24px}
+  .win{right:64px}
+  .bar{padding:10px 16px;flex-wrap:wrap}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter>
+    <symbol id="markSym" viewBox="0 0 100 100"><g filter="url(#ink)" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"><circle cx="50" cy="50" r="40"/><path d="M45 22 V80"/><path d="M50 44 L67 55"/></g></symbol>
+  </defs>
+</svg>
+
+<div id="boot">連線中…</div>
+
+<!-- ======== 教師：登入 ======== -->
+<section id="login" hidden>
+  <div class="login-card">
+    <svg class="seal mark"><use href="#markSym"/></svg>
+    <h1>投票委員會</h1>
+    <p>班級選舉與表決都能用。學生掃一次 QR Code 進入候選室，每開一場就自動拿到選票。</p>
+    <div class="actions">
+      <button class="btn primary big" id="btnAnon">直接開始，不用登入</button>
+      <button class="btn" id="btnLogin">用 Google 帳號登入</button>
+      <p class="login-note">不登入：會場記在這台電腦的瀏覽器裡。<br>用 Google 登入：換任何一台電腦都能打開同一個會場。</p>
+      <details class="takeover"><summary>用會場代碼接手既有會場</summary>
+        <form id="takeoverForm"><input type="text" id="tkCode" placeholder="例如 R7KQ2M" maxlength="8" autocomplete="off" autocapitalize="characters"><button class="btn">接手</button></form>
+      </details>
+      <a class="link" href="?demo">先用展示模式試試看</a>
+    </div>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</section>
+
+<!-- ======== 教師：主畫面 ======== -->
+<section id="teacher" hidden>
+  <header class="bar">
+    <div class="brand"><svg class="seal mark"><use href="#markSym"/></svg><span id="tBrand">投票委員會</span><span class="demo-flag" id="demoFlag" hidden>展示模式</span></div>
+    <nav>
+      <button data-dlg="dlgHistory">投票紀錄</button>
+      <button data-dlg="dlgSettings">設定</button>
+      <button data-dlg="dlgHelp">使用說明</button>
+      <button id="btnLogout">登出</button>
+    </nav>
+  </header>
+  <div class="layout">
+    <aside class="hall">
+      <div class="qr-card" id="qrCard" title="點一下放大投影">
+        <div id="qr"></div>
+        <p>掃描進入候選室</p>
+        <small>點一下放大投影</small>
+      </div>
+      <div class="room-code" id="roomCode" hidden>會場代碼 <b></b></div>
+      <div class="hall-stats">
+        <div class="stat"><b id="stPresent">0</b><span>到場人數</span></div>
+        <div class="stat"><b id="stVoted">–</b><span>本場已投</span></div>
+      </div>
+      <div class="seats" id="seats"></div>
+      <div class="legend"><span><i class="l0"></i>未到場</span><span><i class="l1"></i>在候選室</span><span><i class="l2"></i>已投票</span></div>
+      <div class="hall-foot"><button class="link" id="btnResetPresent">清空到場名單</button></div>
+    </aside>
+    <main class="stage" id="stage"></main>
+  </div>
+</section>
+
+<!-- ======== 學生 ======== -->
+<section id="student" hidden>
+  <header class="s-bar"><span id="sBrand">投票委員會</span><span class="tag" id="sTag" hidden></span></header>
+  <div id="sView"></div>
+</section>
+
+<!-- dialogs -->
+<dialog id="dlgQR"><div class="qr-huge"><h2>掃描進入候選室</h2><div id="qrHuge"></div><p id="qrUrl"></p><div style="margin-top:18px"><button class="btn" data-close>關閉</button></div></div></dialog>
+
+<dialog id="dlgSettings">
+  <div class="dlg-head"><h3>設定</h3><button data-close aria-label="關閉">×</button></div>
+  <form id="settingsForm">
+    <div class="dlg-body">
+      <div class="row2">
+        <div class="field"><label for="sCls">班級名稱</label><input type="text" id="sCls" placeholder="例如：604" maxlength="12"></div>
+        <div class="field"><label for="sOrg">委員會名稱</label><input type="text" id="sOrg" placeholder="投票委員會" maxlength="16"></div>
+      </div>
+      <div class="field"><label for="sSize">座號人數（學生從 1 號選到這個號碼）</label><input type="text" id="sSize" inputmode="numeric" placeholder="29"></div>
+      <p id="setCode" class="set-code" hidden></p>
+      <div class="field"><label for="sTitles">常用選舉職位（每行一個，開選舉時可以直接點選）</label><textarea id="sTitles" rows="8"></textarea></div>
+    </div>
+    <div class="dlg-foot"><button type="button" class="btn" data-close>取消</button><button class="btn primary">儲存設定</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgHistory">
+  <div class="dlg-head"><h3>投票紀錄</h3><button data-close aria-label="關閉">×</button></div>
+  <div class="dlg-body" id="histBody"></div>
+  <div class="dlg-foot"><button class="btn danger" id="btnClearHist">清空紀錄</button><span style="flex:1"></span><button class="btn primary" id="btnExport">下載 CSV（可用 Excel 開）</button></div>
+</dialog>
+
+<dialog id="dlgHelp">
+  <div class="dlg-head"><h3>使用說明</h3><button data-close aria-label="關閉">×</button></div>
+  <div class="dlg-body help">
+    <h4>上課怎麼用</h4>
+    <ol>
+      <li>老師打開網頁，選「直接開始」或用 Google 登入，把左邊的 QR Code 點開放大投影。</li>
+      <li>學生用平板掃描，選自己的座號，進入「候選室」等待。左邊座號格子會亮起來，看得出誰已經到場。</li>
+      <li>老師在右邊選用途（選舉或表決），填題目和選項，設定要選出幾個、每人最多可投幾票，按「開始投票」。</li>
+      <li>候選室裡的學生畫面會自動跳出選票。圈選後按「投入票匭」，再確認一次就送出。</li>
+      <li>投票進度即時顯示在左邊格子（深色＝已投）。按「截止收票」後，黑板會用正字開票，並蓋上結果章。</li>
+      <li>按「下一場」，全班自動回到候選室，接著開下一場。學生不用重新掃描。</li>
+    </ol>
+    <h4>兩種用途</h4>
+    <dl>
+      <dt>選舉：選出人</dt><dd>選幹部、模範生、小組長。可以直接點常用職位，用「帶入上一場未當選者」把落選的人接到下一個職位，也可以「帶入全班座號」讓每個人都能被選。開票蓋「當選」章。</dd>
+      <dt>表決：選出事情</dt><dd>戶外教學地點、班級活動、規則要不要通過。選項可以一鍵帶入「贊成／反對」或「贊成／反對／棄權」。「要選出幾項」設成「不選」時只統計票數，不蓋章；設 1 則蓋「最高票」。</dd>
+      <dt>記名與不記名</dt><dd>預設記名，開票後會列出誰投了什麼。取消勾選「公開誰投了什麼」就變成不記名：畫面和下載的紀錄都只有票數，學生選票上也會註明。</dd>
+    </dl>
+    <h4>常用操作</h4>
+    <dl>
+      <dt>看誰投了什麼</dt><dd>記名的場次，開票後每個選項下方會列出投它的座號；也可以點左邊任一個座號格子，看那位學生投了什麼。</dd>
+      <dt>學生投錯了</dt><dd>點他的座號格子，按「退回選票」，他的平板會回到選票畫面重新圈選。</dd>
+      <dt>選項打錯字</dt><dd>投票中按「取消本場」，剛才的設定會留在表單裡，改好再開一次。</dd>
+      <dt>同票</dt><dd>名額卡在同票時，黑板會標出「同票」，按「同票者重新投票」只讓同票的再選一次，名額自動算好。</dd>
+      <dt>不想讓全班看到即時票數</dt><dd>投票中預設遮蔽票數，只看得到投票進度。要偷看可以勾「顯示即時票數」。截止後才會正式開票。</dd>
+      <dt>保存結果</dt><dd>每按一次「下一場」，那一場就存進「投票紀錄」，可以下載 CSV 用 Excel 打開。</dd>
+    </dl>
+    <h4>要不要登入</h4>
+    <dl>
+      <dt>直接開始（不用登入）</dt><dd>系統會開一個會場，給一組會場代碼（R 開頭 6 碼，顯示在 QR Code 下方和「設定」裡）。會場記在這台電腦的瀏覽器，下次打開會自動回到同一個會場。換電腦時，在首頁選「用會場代碼接手既有會場」輸入代碼即可。</dd>
+      <dt>注意</dt><dd>清除瀏覽器資料後，這台電腦會忘記會場，請把代碼抄下來。代碼也出現在學生掃描的網址裡，知道代碼的人都能打開老師畫面。</dd>
+      <dt>用 Google 登入</dt><dd>會場綁在你的 Google 帳號上，任何電腦登入都是同一個會場，不用記代碼。</dd>
+    </dl>
+    <h4>常見狀況</h4>
+    <dl>
+      <dt>學生畫面停住不動</dt><dd>請他重新整理網頁就好，座號會記住，不用重選。</dd>
+      <dt>學生選錯座號</dt><dd>候選室畫面下方有「更換座號」。</dd>
+      <dt>兩台平板選了同一個座號</dt><dd>第二台會被提醒「這個座號已經有人使用」。如果真的投了，後送出的選票會蓋掉前一張。</dd>
+      <dt>新的一天要重新開始</dt><dd>按左下角「清空到場名單」，所有座號格子會變回未到場。學生重新整理後就會再亮起來。</dd>
+    </dl>
+    <h4>分享給其他老師</h4>
+    <p>其他老師直接開這個網址，選「直接開始」或用自己的 Google 帳號登入即可。每位老師的會場、QR Code 和紀錄都是分開的。第一次使用記得在「設定」改班級名稱和座號人數。</p>
+    <h4>Firebase 設定（只有網站管理者需要）</h4>
+    <ul>
+      <li>Authentication 要開啟「匿名」登入（學生和「直接開始」都用它）；要讓老師用 Google 登入，再開啟「Google」。</li>
+      <li>Authentication → Settings → 授權網域，要有網站所在的網域（例如 nevermind9095.github.io）。</li>
+      <li>Firestore 規則要允許登入者讀寫 <code>users/{會場}/apps/election_room</code>。若出現「權限不足」，在現有規則裡加上這一段（不要整份覆蓋，以免影響其他程式）：</li>
+    </ul>
+<pre>match /users/{uid}/apps/election_room {
+  allow read, write: if request.auth != null;
+}</pre>
+  </div>
+</dialog>
+
+<script type="module">
+/* ================= 基本設定 ================= */
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDJFzG3RrCkJBx5B23lBVcoOHmaqZ2dAYA",
+  authDomain: "forgemini-7349a.firebaseapp.com",
+  projectId: "forgemini-7349a",
+  storageBucket: "forgemini-7349a.firebasestorage.app",
+  messagingSenderId: "865250968546",
+  appId: "1:865250968546:web:fc3ded71179b709d422fbb"
+};
+const FB = "https://www.gstatic.com/firebasejs/10.7.1/";
+const DOC_NAME = "election_room";
+const DEFAULT_TITLES = ["總監","秩序督察長","整潔巡查使","作業簽收官","帳務主任","理財專員","分數考核員","圖書館長","冷漱調度師","追件特勤","體育助教","英語祕書","各組經理"];
+
+const params = new URLSearchParams(location.search);
+const DEMO = params.has("demo");
+const ROOM = params.get("room");
+const IS_STUDENT = !!ROOM;
+const DEL = Symbol("delete");
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const sk = n => "s" + n;
+const newId = () => "r" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+// 展示模式下每個分頁當作一台不同的平板，所以座號存在 sessionStorage
+const KV = (() => { try { return DEMO ? sessionStorage : localStorage; } catch { return null; } })();
+const ls = {
+  get(k){ try { return KV.getItem(k); } catch { return null; } },
+  set(k,v){ try { KV.setItem(k,v); } catch {} },
+  del(k){ try { KV.removeItem(k); } catch {} }
+};
+const deviceId = (() => { let d = ls.get("vote-dev"); if (!d) { d = Math.random().toString(36).slice(2, 10); ls.set("vote-dev", d); } return d; })();
+function show(id){ for (const s of ["#boot","#login","#teacher","#student"]) $(s).hidden = s !== id; }
+let toastTimer;
+function toast(msg, err){ let t = $(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; document.body.append(t); } t.textContent = msg; t.classList.toggle("err", !!err); t.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.hidden = true, 3200); }
+function errText(e){
+  const code = e?.code || "";
+  if (code.includes("permission-denied")) return "權限不足：Firestore 規則不允許讀寫會場資料。請看「使用說明」最後一段。";
+  if (code.includes("unavailable")) return "連不上雲端，請確認網路。";
+  return "發生錯誤：" + (e?.message || e);
+}
+
+/* ================= 資料層 ================= */
+function defaultRoom(){ return { v:1, cfg:{ cls:"", org:"", size:29, titles:DEFAULT_TITLES }, status:"lobby", round:null, ballots:{}, present:{}, history:{} }; }
+
+function applyPatch(state, patch){
+  const s = structuredClone(state || {});
+  for (const [k, v] of Object.entries(patch)) {
+    const parts = k.split("."); let o = s;
+    for (let i = 0; i < parts.length - 1; i++) { if (typeof o[parts[i]] !== "object" || o[parts[i]] === null) o[parts[i]] = {}; o = o[parts[i]]; }
+    const last = parts[parts.length - 1];
+    if (v === DEL) delete o[last]; else o[last] = structuredClone(v);
+  }
+  return s;
+}
+
+function localStore(){
+  const KEY = "vote-demo-room";
+  const ch = "BroadcastChannel" in window ? new BroadcastChannel("vote-demo") : null;
+  const subs = new Set();
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } };
+  const emit = () => { const st = read(); subs.forEach(cb => cb(st)); };
+  ch && (ch.onmessage = emit);
+  window.addEventListener("storage", e => { if (e.key === KEY) emit(); });
+  const write = st => { localStorage.setItem(KEY, JSON.stringify(st)); ch && ch.postMessage(1); setTimeout(emit, 0); };
+  return {
+    subscribe(cb){ subs.add(cb); setTimeout(() => cb(read()), 0); return () => subs.delete(cb); },
+    async get(){ return read(); },
+    async set(obj){ write(obj); },
+    async update(patch){ await new Promise(r => setTimeout(r, 60)); write(applyPatch(read() || {}, patch)); }
+  };
+}
+
+let fbMods = null;
+async function loadFirebase(){
+  if (fbMods) return fbMods;
+  const [app, fs, au] = await Promise.all([import(FB + "firebase-app.js"), import(FB + "firebase-firestore.js"), import(FB + "firebase-auth.js")]);
+  const a = app.initializeApp(FIREBASE_CONFIG);
+  fbMods = { fs, au, db: fs.getFirestore(a), auth: au.getAuth(a) };
+  return fbMods;
+}
+function firebaseStore(uid){
+  const { fs, db } = fbMods;
+  const ref = fs.doc(db, "users", uid, "apps", DOC_NAME);
+  const conv = patch => { const o = {}; for (const [k, v] of Object.entries(patch)) o[k] = v === DEL ? fs.deleteField() : v; return o; };
+  return {
+    subscribe(cb, onErr){ return fs.onSnapshot(ref, snap => cb(snap.exists() ? snap.data() : null), onErr); },
+    async get(){ const s = await fs.getDoc(ref); return s.exists() ? s.data() : null; },
+    async set(obj){ await fs.setDoc(ref, obj); },
+    async update(patch){ await fs.updateDoc(ref, conv(patch)); }
+  };
+}
+
+/* ================= 計票 ================= */
+function tallyOf(round, ballots){
+  const counts = round.opts.map(() => 0), voters = round.opts.map(() => []), bySeat = {};
+  for (const [k, b] of Object.entries(ballots || {})) {
+    if (!b || b.r !== round.id || !Array.isArray(b.p)) continue;
+    const seat = +k.slice(1);
+    const picks = [...new Set(b.p)].filter(i => Number.isInteger(i) && i >= 0 && i < round.opts.length).slice(0, round.max);
+    if (!picks.length) continue;
+    bySeat[seat] = picks;
+    picks.forEach(i => { counts[i]++; voters[i].push(seat); });
+  }
+  voters.forEach(v => v.sort((a, b) => a - b));
+  return { counts, voters, bySeat, n: Object.keys(bySeat).length };
+}
+function resultOf(counts, quota){
+  const order = counts.map((_, i) => i).sort((a, b) => counts[b] - counts[a] || a - b);
+  if (!quota) return { elected: [], tied: [], remaining: 0 };
+  if (quota >= counts.length) return { elected: order, tied: [], remaining: 0 };
+  const cut = counts[order[quota - 1]];
+  const above = order.filter(i => counts[i] > cut), at = order.filter(i => counts[i] === cut);
+  if (above.length + at.length <= quota) return { elected: [...above, ...at], tied: [], remaining: 0 };
+  return { elected: above, tied: at, remaining: quota - above.length };
+}
+const unitOf = r => r.kind === "poll" ? "項" : "位";
+const ruleText = r => r.max === 1 ? `每人圈選 1 ${unitOf(r)}` : `每人最多圈選 ${r.max} ${unitOf(r)}`;
+const winWord = r => r.kind === "poll" ? (r.quota === 1 ? "最高票" : "入選") : "當選";
+const goalText = r => r.kind === "poll" ? (r.quota ? `選出 ${r.quota} 項` : "只統計票數") : `應選 ${r.quota} 名`;
+
+/* ================= 教師端 ================= */
+let T = { store:null, room:null, uid:null, mode:"", live:false, seatPop:null, stageKey:"", shown:null, shownRound:null, draft:null };
+const ROOM_KEY = "vote-room";
+const orgName = cfg => (cfg?.org || "").trim() || "投票委員會";
+function loginErr(msg){ show("#login"); $("#loginErr").textContent = msg || ""; }
+function genCode(){ const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c = "R"; for (let i = 0; i < 5; i++) c += A[Math.floor(Math.random() * A.length)]; return c; }
+
+async function bootTeacher(){
+  if (DEMO) { T.mode = "demo"; startTeacher("demo", localStore()); return; }
+  try { await loadFirebase(); } catch (e) { loginErr("無法載入 Firebase，請確認網路後重新整理。"); return; }
+  const { au, auth, fs, db } = fbMods;
+  const roomExists = async code => (await fs.getDoc(fs.doc(db, "users", code, "apps", DOC_NAME))).exists();
+  const ensureAnon = async () => { if (!auth.currentUser) await au.signInAnonymously(auth); };
+  const anonErr = e => (e?.code || "").includes("operation-not-allowed") || (e?.code || "").includes("admin-restricted") ? "Firebase 還沒開啟「匿名登入」，請看使用說明最後一段。" : errText(e);
+
+  $("#btnLogin").onclick = async () => {
+    $("#loginErr").textContent = "";
+    try { await au.signInWithPopup(auth, new au.GoogleAuthProvider()); }
+    catch (e) { $("#loginErr").textContent = e.code === "auth/unauthorized-domain" ? "這個網域還沒加入 Firebase 授權網域。" : (e.code === "auth/popup-closed-by-user" ? "" : "登入失敗：" + e.message); }
+  };
+  $("#btnAnon").onclick = async () => {
+    const b = $("#btnAnon"); b.disabled = true; $("#loginErr").textContent = "";
+    try {
+      await ensureAnon();
+      let code = genCode();
+      for (let i = 0; i < 5 && await roomExists(code); i++) code = genCode();
+      ls.set(ROOM_KEY, code); T.mode = "code";
+      await startTeacher(code, firebaseStore(code));
+    } catch (e) { loginErr(anonErr(e)); }
+    b.disabled = false;
+  };
+  $("#takeoverForm").onsubmit = async e => {
+    e.preventDefault();
+    const code = $("#tkCode").value.trim().toUpperCase().replace(/\s/g, "");
+    if (!/^R[A-Z0-9]{5}$/.test(code)) return loginErr("會場代碼是 R 開頭的 6 個英數字。");
+    try {
+      await ensureAnon();
+      if (!await roomExists(code)) return loginErr(`找不到會場 ${code}，請確認代碼。`);
+      ls.set(ROOM_KEY, code); T.mode = "code";
+      await startTeacher(code, firebaseStore(code));
+    } catch (e) { loginErr(anonErr(e)); }
+  };
+  au.onAuthStateChanged(auth, async user => {
+    if (user && !user.isAnonymous) { T.mode = "google"; if (T.uid !== user.uid) startTeacher(user.uid, firebaseStore(user.uid)); return; }
+    const code = ls.get(ROOM_KEY);
+    if (code && user) { T.mode = "code"; if (T.uid !== code) startTeacher(code, firebaseStore(code)); return; }
+    if (code && !user) { try { await au.signInAnonymously(auth); } catch (e) { loginErr(anonErr(e)); } return; }
+    if (T.mode !== "code") { T.uid = null; T.unsub?.(); show("#login"); }
+  });
+}
+
+async function startTeacher(uid, store){
+  T.uid = uid; T.store = store; T.stageKey = "";
+  show("#teacher");
+  $("#demoFlag").hidden = !DEMO;
+  $("#btnLogout").textContent = T.mode === "google" ? "登出" : T.mode === "demo" ? "離開展示" : "離開會場";
+  $("#roomCode").hidden = T.mode !== "code";
+  $("#roomCode b").textContent = uid;
+  const link = new URL(location.href.split("#")[0]);
+  link.search = DEMO ? "?demo&room=demo" : "?room=" + encodeURIComponent(uid);
+  T.link = link.toString();
+  $("#qr").innerHTML = ""; new QRCode($("#qr"), { text: T.link, width: 400, height: 400, correctLevel: QRCode.CorrectLevel.M });
+  try {
+    const cur = await store.get();
+    if (!cur) { await store.set(defaultRoom()); setTimeout(() => openSettings(true), 300); }
+  } catch (e) { toast(errText(e), true); }
+  T.unsub?.();
+  T.unsub = store.subscribe(room => { if (room) { T.room = room; renderTeacher(); } }, e => toast(errText(e), true));
+}
+
+async function act(patch, okMsg){
+  try { await T.store.update(patch); okMsg && toast(okMsg); return true; }
+  catch (e) { toast(errText(e), true); return false; }
+}
+
+function renderTeacher(){
+  const R = T.room, cfg = R.cfg || {};
+  const name = (cfg.cls ? cfg.cls + " " : "") + orgName(cfg);
+  $("#tBrand").textContent = name;
+  document.title = name;
+  renderSeats();
+  renderStage();
+}
+
+function renderSeats(){
+  const R = T.room, size = R.cfg?.size || 29;
+  const round = R.round, t = round ? tallyOf(round, R.ballots) : null;
+  const present = R.present || {};
+  let html = "", nPresent = 0;
+  for (let i = 1; i <= size; i++) {
+    const isP = !!present[sk(i)], isV = t && t.bySeat[i];
+    if (isP) nPresent++;
+    html += `<button class="seat${isP ? " present" : ""}${isV ? " voted" : ""}${T.seatPop === i ? " sel" : ""}" data-seat="${i}" aria-label="${i} 號">${i}</button>`;
+  }
+  $("#seats").innerHTML = html;
+  $("#stPresent").textContent = nPresent;
+  $("#stVoted").textContent = t ? `${t.n} / ${size}` : "–";
+  if (T.seatPop) openSeatPop(T.seatPop, true);
+}
+
+function renderStage(){
+  const R = T.room;
+  const key = R.status === "lobby" || !R.round ? "lobby" : R.status + ":" + R.round.id;
+  const stage = $("#stage");
+  if (key === "lobby") {
+    if (T.stageKey !== "lobby") { stage.innerHTML = setupHTML(); bindSetup(); }
+    else refreshChips();
+    T.stageKey = key; return;
+  }
+  const r = R.round, t = tallyOf(r, R.ballots);
+  const sig = [key, T.live, R.cfg?.size, t.counts.join(","), JSON.stringify(t.bySeat)].join("|");
+  if (T.stageKey === key && T.boardSig === sig) return;
+  T.stageKey = key; T.boardSig = sig;
+  stage.innerHTML = boardHTML();
+  bindBoard();
+}
+
+/* ---------- 開場表單 ---------- */
+const KIND = {
+  elect: { title:"選舉職位", ph:"例如：總監", opts:"候選人（每行一位）", optsPh:"例如：\n3號 陳小安\n12號 林小宇\n20號 王小晴", quota:"應選名額", unit:"位", noun:"候選人" },
+  poll:  { title:"表決題目", ph:"例如：戶外教學想去哪裡？", opts:"選項（每行一個）", optsPh:"例如：\n動物園\n科學教育館\n兒童新樂園", quota:"要選出幾項", unit:"項", noun:"選項" }
+};
+function setupHTML(){
+  const d = T.draft || { kind: T.lastKind || "elect", title:"", opts:[], quota:1, max:1, named:true };
+  T.form = { kind: d.kind, quota: d.quota, max: d.max, maxTouched: d.max !== d.quota };
+  return `<form class="setup" id="setup" novalidate>
+    <h2>開設下一場投票</h2>
+    <p class="sub">設定好按「開始投票」，候選室裡的學生會同時拿到選票。</p>
+    <div class="seg" role="radiogroup" aria-label="投票用途">
+      <button type="button" role="radio" data-kind="elect">選舉：選出人</button>
+      <button type="button" role="radio" data-kind="poll">表決：選出事情</button>
+    </div>
+    <div class="field"><label for="fTitle" id="lTitle"></label>
+      <input type="text" id="fTitle" value="${esc(d.title)}" maxlength="40" autocomplete="off">
+      <div class="chips" id="chips"></div></div>
+    <div class="field"><label for="fOpts" id="lOpts"></label>
+      <textarea id="fOpts">${esc(d.opts.join("\n"))}</textarea>
+      <div class="opt-tools" id="optTools"></div></div>
+    <div class="row2">
+      <div class="field"><span class="lab" id="lQuota"></span><div class="stepper" data-k="quota"><button type="button" data-d="-1" aria-label="減少">−</button><output></output><button type="button" data-d="1" aria-label="增加">＋</button></div></div>
+      <div class="field"><span class="lab">每人最多可投</span><div class="stepper" data-k="max"><button type="button" data-d="-1" aria-label="減少">−</button><output></output><button type="button" data-d="1" aria-label="增加">＋</button></div></div>
+    </div>
+    <label class="toggle named"><input type="checkbox" id="fNamed" ${d.named !== false ? "checked" : ""}>公開誰投了什麼（記名）</label>
+    <div class="rule-line" id="ruleLine"></div>
+    <div class="form-err" id="formErr"></div>
+    <button class="btn primary big">開始投票</button>
+  </form>`;
+}
+function parseOpts(){ const seen = new Set(); return $("#fOpts").value.split("\n").map(s => s.trim()).filter(s => s && !seen.has(s) && seen.add(s)); }
+function applyKind(){
+  const k = T.form.kind, K = KIND[k];
+  document.querySelectorAll(".seg button").forEach(b => { const on = b.dataset.kind === k; b.classList.toggle("on", on); b.setAttribute("aria-checked", on); });
+  $("#lTitle").textContent = K.title; $("#fTitle").placeholder = K.ph;
+  $("#lOpts").textContent = K.opts; $("#fOpts").placeholder = K.optsPh;
+  $("#lQuota").textContent = K.quota;
+  $("#optTools").innerHTML = (k === "elect"
+    ? `<button type="button" class="link" data-fill="prev">帶入上一場未當選者</button><button type="button" class="link" data-fill="seats">帶入全班座號</button>`
+    : `<button type="button" class="link" data-fill="yn">贊成／反對</button><button type="button" class="link" data-fill="yna">贊成／反對／棄權</button><button type="button" class="link" data-fill="seats">帶入全班座號</button>`)
+    + `<button type="button" class="link" data-fill="clear">清空</button>`;
+  if (k === "elect" && T.form.quota < 1) T.form.quota = 1;
+  refreshChips(); refreshRule();
+}
+function refreshRule(){
+  const n = parseOpts().length, f = T.form, K = KIND[f.kind];
+  $(`.stepper[data-k=quota] output`).textContent = f.quota === 0 ? "不選" : f.quota;
+  $(`.stepper[data-k=max] output`).textContent = f.max;
+  const pick = f.max === 1 ? `每人只能圈選 1 ${K.unit}（單選）` : `每人最多圈選 ${f.max} ${K.unit}，可以少投`;
+  const goal = f.kind === "elect" ? `應選 ${f.quota} 名` : f.quota === 0 ? "只統計票數，不標示結果" : `選出最高票的 ${f.quota} 項`;
+  const named = $("#fNamed").checked ? "記名，開票後會列出誰投了什麼" : "不記名，只公開票數";
+  $("#ruleLine").textContent = `${goal}。${pick}。${named}。目前${K.noun} ${n} ${f.kind === "elect" ? "位" : "個"}。`;
+}
+function refreshChips(){
+  const box = $("#chips"); if (!box) return;
+  if (T.form?.kind === "poll") { box.innerHTML = ""; return; }
+  const titles = T.room.cfg?.titles?.length ? T.room.cfg.titles : DEFAULT_TITLES;
+  const done = new Set(Object.values(T.room.history || {}).map(h => h.title));
+  box.innerHTML = titles.map(t => `<button type="button" class="chip${done.has(t) ? " done" : ""}" data-t="${esc(t)}" title="${done.has(t) ? "已選過" : ""}">${esc(t)}</button>`).join("");
+}
+function lastElect(){ return Object.values(T.room.history || {}).filter(h => (h.kind || "elect") === "elect").sort((a, b) => b.at - a.at)[0]; }
+function fillOpts(kind){
+  const box = $("#fOpts"), size = T.room.cfg?.size || 29;
+  if (kind === "clear") box.value = "";
+  else if (kind === "yn") box.value = "贊成\n反對";
+  else if (kind === "yna") box.value = "贊成\n反對\n棄權";
+  else if (kind === "seats") box.value = Array.from({ length: size }, (_, i) => `${i + 1}號`).join("\n");
+  else if (kind === "prev") {
+    let h = lastElect(); if (!h) return toast("還沒有上一場選舉的紀錄");
+    // 同票重投的場次往回找到原始那一場，所有輪次的當選者都排除
+    const hist = T.room.history || {}, win = new Set();
+    for (let guard = 0; h && guard < 20; guard++) {
+      resultOf(histTally(h).counts, h.quota).elected.forEach(i => win.add(h.opts[i]));
+      if (!h.parent || !hist[h.parent]) break;
+      h = hist[h.parent];
+    }
+    const rest = h.opts.filter(o => !win.has(o));
+    box.value = rest.join("\n");
+    toast(`已帶入 ${rest.length} 位`);
+  }
+  refreshRule();
+}
+function bindSetup(){
+  applyKind();
+  document.querySelector(".seg").onclick = e => { const b = e.target.closest("button"); if (!b || b.dataset.kind === T.form.kind) return; T.form.kind = b.dataset.kind; T.lastKind = T.form.kind; applyKind(); };
+  $("#chips").onclick = e => { const b = e.target.closest(".chip"); if (b) { $("#fTitle").value = b.dataset.t; $("#fOpts").focus(); } };
+  $("#optTools").onclick = e => { const b = e.target.closest("[data-fill]"); if (b) fillOpts(b.dataset.fill); };
+  $("#fOpts").oninput = refreshRule;
+  $("#fNamed").onchange = refreshRule;
+  document.querySelectorAll("#setup .stepper").forEach(st => st.onclick = e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const k = st.dataset.k, f = T.form, d = +b.dataset.d;
+    const min = k === "quota" && f.kind === "poll" ? 0 : 1;
+    f[k] = Math.max(min, Math.min(40, f[k] + d));
+    if (k === "max") f.maxTouched = true;
+    if (k === "quota" && !f.maxTouched) f.max = Math.max(1, f.quota);
+    refreshRule();
+  });
+  $("#setup").onsubmit = async e => {
+    e.preventDefault();
+    const title = $("#fTitle").value.trim(), opts = parseOpts(), f = T.form, K = KIND[f.kind], err = $("#formErr");
+    err.textContent = "";
+    if (!title) return err.textContent = `請填寫${K.title}。`;
+    if (opts.length < 1) return err.textContent = `請至少輸入 1 個${K.noun}。`;
+    if (opts.length > 60) return err.textContent = `${K.noun}最多 60 個。`;
+    if (f.quota > opts.length) return err.textContent = `${K.quota}是 ${f.quota}，但${K.noun}只有 ${opts.length} 個。`;
+    if (f.max > opts.length) return err.textContent = `每人最多可投 ${f.max} ${K.unit}，但${K.noun}只有 ${opts.length} 個。`;
+    const btn = e.submitter || $("#setup .btn.primary"); btn.disabled = true;
+    const ok = await openRound({ kind: f.kind, title, opts, quota: f.quota, max: f.max, named: $("#fNamed").checked });
+    btn.disabled = false;
+    if (ok) T.draft = null;
+  };
+}
+function openRound(r){
+  return act({ status:"open", round:{ id:newId(), kind:r.kind || "elect", title:r.title, opts:r.opts, quota:r.quota, max:r.max, named:r.named !== false, ts:Date.now(), ...(r.parent ? { parent:r.parent } : {}) }, ballots:{} });
+}
+
+/* ---------- 黑板 ---------- */
+const STROKES = ["M7 9 H33","M20 9 V33","M20 21 H30","M10 21 V33","M5 33 H35"];
+function tallySVG(n, from, step){
+  let out = "", idx = 0, nNew = 0;
+  for (let g = 0; g * 5 < n; g++) {
+    const k = Math.min(5, n - g * 5); let paths = "";
+    for (let s = 0; s < k; s++, idx++) {
+      if (idx >= from) { paths += `<path d="${STROKES[s]}" pathLength="1" class="new" style="animation-delay:${(idx - from) * step}ms"/>`; nNew++; }
+      else paths += `<path d="${STROKES[s]}"/>`;
+    }
+    out += `<svg class="tg" viewBox="0 0 40 40" aria-hidden="true">${paths}</svg>`;
+  }
+  return out;
+}
+function boardHTML(){
+  const R = T.room, r = R.round, size = R.cfg?.size || 29;
+  const t = tallyOf(r, R.ballots), closed = R.status === "closed";
+  const visible = closed || T.live;
+  if (T.shownRound !== r.id || !visible) { T.shown = null; T.shownRound = r.id; }
+  const from = T.shown || r.opts.map(() => 0);
+  const maxNew = Math.max(0, ...t.counts.map((c, i) => c - Math.min(c, from[i])));
+  const step = maxNew ? Math.min(90, 2400 / maxNew) : 0;
+  const winDelay = maxNew * step + 250;
+  const res = closed ? resultOf(t.counts, r.quota) : null;
+  const pct = Math.round(t.n / size * 100);
+  const rows = r.opts.map((name, i) => {
+    let badge = "", lose = false;
+    if (res) {
+      if (res.elected.includes(i)) badge = `<span class="win" style="animation-delay:${winDelay}ms">${winWord(r)}</span>`;
+      else if (res.tied.includes(i)) badge = `<span class="win tie" style="animation-delay:${winDelay}ms">同票</span>`;
+      else lose = r.quota > 0;
+    }
+    const tal = visible ? tallySVG(t.counts[i], Math.min(t.counts[i], from[i]), step) : "";
+    const voters = visible && r.named !== false && t.voters[i].length ? `<div class="voters">${t.voters[i].map(s => `<span>${s}號</span>`).join("")}</div>` : "";
+    return `<div class="cand${lose ? " lose" : ""}"><div class="no">${i + 1}</div><div class="name">${esc(name)}</div>
+      <div class="tally">${visible ? tal : '<span class="veiled">票數遮蔽中</span>'}</div>
+      <div class="count" data-to="${t.counts[i]}" data-from="${visible ? Math.min(t.counts[i], from[i]) : 0}">${visible ? Math.min(t.counts[i], from[i]) : ""}</div>${badge}${voters}</div>`;
+  }).join("");
+  T.shown = visible ? t.counts.slice() : null;
+  T.anim = visible ? { step } : null;
+  let note = "";
+  if (res && res.tied.length) note = `<p class="board-note">同票 ${res.tied.length} ${r.kind === "poll" ? "項" : "人"}爭取 ${res.remaining} 個名額，可以按下方「同票者重新投票」。</p>`;
+  if (res && !t.n) note = `<p class="board-note">這一場沒有收到任何選票。</p>`;
+  const actions = closed
+    ? `<button class="btn primary big" id="bNext">下一場（全員回候選室）</button>
+       ${res.tied.length ? `<button class="btn" id="bTie">同票者重新投票</button>` : ""}
+       <span class="spacer"></span>
+       <button class="btn" id="bReopen">繼續收票</button>
+       <button class="btn danger" id="bRedo">整場重投</button>`
+    : `<button class="btn primary big" id="bClose">截止收票，開票</button>
+       <label class="toggle"><input type="checkbox" id="bLive" ${T.live ? "checked" : ""}>顯示即時票數</label>
+       <span class="spacer"></span>
+       <button class="btn" id="bRedo">整場重投</button>
+       <button class="btn danger" id="bCancel">取消本場</button>`;
+  return `<div class="board">
+      <div class="board-head"><div><h2 class="board-title">${esc(r.title)}${r.parent ? "（同票重投）" : ""}</h2>
+        <div class="board-meta">${goalText(r)}，${ruleText(r)}，${r.named !== false ? "記名" : "不記名"}，已收 ${t.n} / ${size} 張</div></div>
+        <div class="board-status${closed ? "" : " live"}">${closed ? "開票結果" : "收票中"}</div></div>
+      <div class="progress"><i style="width:${pct}%"></i></div>
+      ${rows}${note}
+    </div>
+    <div class="actions">${actions}</div>`;
+}
+function bindBoard(){
+  if (T.anim) document.querySelectorAll(".cand .count").forEach(el => {
+    const from = +el.dataset.from, to = +el.dataset.to; if (to <= from) { el.textContent = to; return; }
+    let v = from; const tick = () => { v++; el.textContent = v; if (v < to) setTimeout(tick, T.anim.step); };
+    setTimeout(tick, T.anim.step);
+  });
+  const on = (id, fn) => { const b = $("#" + id); if (b) b.onclick = fn; };
+  on("bLive", () => { T.live = $("#bLive").checked; renderStage(); });
+  on("bClose", () => act({ status:"closed" }));
+  on("bReopen", () => act({ status:"open" }));
+  on("bCancel", () => {
+    if (!confirm("取消本場？已收到的選票會作廢，設定會留在表單裡讓你修改。")) return;
+    const r = T.room.round; T.draft = { kind:r.kind || "elect", title:r.title, opts:r.opts, quota:r.quota, max:r.max, named:r.named !== false };
+    T.stageKey = ""; act({ status:"lobby", round:null, ballots:{} });
+  });
+  on("bRedo", () => {
+    if (!confirm("整場重投？已收到的選票會全部作廢，學生畫面會重新出現選票。")) return;
+    const r = T.room.round; T.live = false;
+    act({ status:"open", round:{ ...r, id:newId(), ts:Date.now() }, ballots:{} });
+  });
+  on("bNext", async () => {
+    T.live = false;
+    await act({ ["history." + T.room.round.id]: archive(), status:"lobby", round:null, ballots:{} }, "已存入投票紀錄，全員回到候選室");
+  });
+  on("bTie", async () => {
+    const r = T.room.round, t = tallyOf(r, T.room.ballots), res = resultOf(t.counts, r.quota);
+    const opts = res.tied.map(i => r.opts[i]);
+    if (!confirm(`讓 ${opts.join("、")} 重新投票，爭取 ${res.remaining} 個名額？`)) return;
+    T.live = false;
+    await act({ ["history." + r.id]: archive(true), status:"open", round:{ id:newId(), kind:r.kind || "elect", named:r.named !== false, title:r.title, opts, quota:res.remaining, max:Math.min(r.max, res.remaining), ts:Date.now(), parent:r.id }, ballots:{} });
+  });
+}
+function archive(tie){
+  const r = T.room.round, t = tallyOf(r, T.room.ballots);
+  return { kind:r.kind || "elect", named:r.named !== false, title:r.title + (r.parent ? "（同票重投）" : ""), opts:r.opts, quota:r.quota, max:r.max, votes:t.bySeat, at:Date.now(), ...(tie ? { tie:true } : {}), ...(r.parent ? { parent:r.parent } : {}) };
+}
+
+/* ---------- 座號格子 ---------- */
+function openSeatPop(seat, keep){
+  document.querySelector(".pop")?.remove();
+  const tile = document.querySelector(`.seat[data-seat="${seat}"]`); if (!tile) { T.seatPop = null; return; }
+  T.seatPop = seat; tile.classList.add("sel");
+  const R = T.room, round = R.round, b = R.ballots?.[sk(seat)], present = R.present?.[sk(seat)];
+  const t = round ? tallyOf(round, R.ballots) : null, picks = t?.bySeat[seat];
+  let body;
+  if (!round || R.status === "lobby") body = `<p>${present ? "已在候選室等待。" : "還沒有進入候選室。"}</p>`;
+  else if (picks) body = (round.named !== false ? `<p>投給：<b>${picks.map(i => esc(round.opts[i])).join("、")}</b></p>` : `<p>已投票。這一場不記名，不顯示內容。</p>`) + `<button class="btn danger" id="pVoid">退回選票，讓他重投</button>`;
+  else body = `<p>${present ? "在候選室，還沒投票。" : "還沒有進入候選室。"}</p>`;
+  if (present && (!round || R.status === "lobby" || !picks)) body += `<button class="link" id="pKick">移出候選室（座號選錯時用）</button>`;
+  const pop = document.createElement("div"); pop.className = "pop";
+  pop.innerHTML = `<button class="x" aria-label="關閉">×</button><h4>${seat} 號</h4>${body}`;
+  document.body.append(pop);
+  const rc = tile.getBoundingClientRect();
+  let left = rc.right + 10, top = rc.top - 10;
+  if (left + 270 > innerWidth) left = Math.max(8, rc.left - 270);
+  if (top + pop.offsetHeight > innerHeight - 8) top = innerHeight - pop.offsetHeight - 8;
+  pop.style.left = left + "px"; pop.style.top = Math.max(8, top) + "px";
+  pop.querySelector(".x").onclick = closeSeatPop;
+  const v = pop.querySelector("#pVoid"); if (v) v.onclick = async () => { if (await act({ ["ballots." + sk(seat)]: DEL }, `${seat} 號的選票已退回`)) closeSeatPop(); };
+  const k = pop.querySelector("#pKick"); if (k) k.onclick = async () => { if (await act({ ["present." + sk(seat)]: DEL })) closeSeatPop(); };
+}
+function closeSeatPop(){ document.querySelector(".pop")?.remove(); T.seatPop = null; document.querySelectorAll(".seat.sel").forEach(s => s.classList.remove("sel")); }
+
+/* ---------- 對話框 ---------- */
+function openSettings(first){
+  const c = T.room?.cfg || defaultRoom().cfg;
+  $("#sCls").value = c.cls || ""; $("#sOrg").value = c.org || ""; $("#sSize").value = c.size || 29;
+  $("#setCode").hidden = T.mode !== "code";
+  $("#setCode").innerHTML = `會場代碼 <b>${esc(T.uid)}</b><br>這個會場記在這台電腦的瀏覽器裡。換電腦時，在首頁選「用會場代碼接手既有會場」輸入這組代碼。`;
+  $("#sTitles").value = (c.titles?.length ? c.titles : DEFAULT_TITLES).join("\n");
+  $("#dlgSettings .dlg-head h3").textContent = first ? "第一次使用：設定你的班級" : "設定";
+  $("#dlgSettings").showModal();
+}
+function renderHistory(){
+  const list = Object.entries(T.room.history || {}).sort((a, b) => a[1].at - b[1].at);
+  if (!list.length) { $("#histBody").innerHTML = `<p>還沒有紀錄。每按一次「下一場」，那一場的結果就會存到這裡。</p>`; return; }
+  $("#histBody").innerHTML = list.map(([id, h]) => {
+    const t = histTally(h), res = resultOf(t.counts, h.quota);
+    const d = new Date(h.at);
+    const ranking = h.opts.map((o, i) => [o, t.counts[i], i]).sort((a, b) => b[1] - a[1]).map(([o, c, i]) => res.elected.includes(i) ? `<b>${esc(o)} ${c}</b>` : `${esc(o)} ${c}`).join("、");
+    return `<div class="hist-item"><h4>${esc(h.title)}</h4><div class="meta">${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}，${h.kind === "poll" ? "表決" : "選舉"}，${goalText(h)}，收 ${t.n} 張${h.named === false ? "，不記名" : ""}${h.tie ? "，同票後已重投" : ""}</div><div class="res">${ranking}</div></div>`;
+  }).join("");
+}
+function histTally(h){ return tallyOf({ ...h, id:"x" }, Object.fromEntries(Object.entries(h.votes || {}).map(([s, p]) => [sk(s), { r:"x", p }]))); }
+function exportCSV(){
+  const items = Object.values(T.room.history || {}).sort((a, b) => a.at - b.at);
+  if (T.room.round) items.push({ ...archive(), title: T.room.round.title + "（進行中）" });
+  if (!items.length) return toast("沒有可下載的紀錄");
+  const q = s => `"${String(s).replace(/"/g, '""')}"`;
+  let csv = "﻿【開票結果】\n類型,題目,選項,票數,結果\n";
+  for (const h of items) {
+    const t = histTally(h), res = resultOf(t.counts, h.quota);
+    h.opts.forEach((o, i) => csv += [h.kind === "poll" ? "表決" : "選舉", q(h.title), q(o), t.counts[i], res.elected.includes(i) ? winWord(h) : res.tied.includes(i) ? "同票" : ""].join(",") + "\n");
+  }
+  csv += "\n【記名明細】（不記名的場次不列出）\n題目,座號,投給\n";
+  for (const h of items) {
+    if (h.named === false) continue;
+    const t = histTally(h);
+    Object.keys(t.bySeat).map(Number).sort((a, b) => a - b).forEach(s => csv += [q(h.title), s, q(t.bySeat[s].map(i => h.opts[i]).join("、"))].join(",") + "\n");
+  }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type:"text/csv;charset=utf-8" }));
+  const d = new Date(); a.download = `投票紀錄_${d.getFullYear()}${String(d.getMonth() + 1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}.csv`;
+  a.click();
+}
+function bindTeacherChrome(){
+  document.querySelectorAll("[data-dlg]").forEach(b => b.onclick = () => {
+    const id = b.dataset.dlg;
+    if (id === "dlgSettings") return openSettings();
+    if (id === "dlgHistory") renderHistory();
+    $("#" + id).showModal();
+  });
+  document.querySelectorAll("dialog [data-close]").forEach(b => b.onclick = () => b.closest("dialog").close());
+  document.querySelectorAll("dialog").forEach(d => d.addEventListener("click", e => { if (e.target === d) d.close(); }));
+  $("#qrCard").onclick = () => { $("#qrHuge").innerHTML = ""; new QRCode($("#qrHuge"), { text:T.link, width:560, height:560, correctLevel:QRCode.CorrectLevel.M }); $("#qrUrl").textContent = T.link; $("#dlgQR").showModal(); };
+  $("#seats").onclick = e => { const b = e.target.closest(".seat"); if (!b) return; const s = +b.dataset.seat; if (T.seatPop === s) closeSeatPop(); else { closeSeatPop(); openSeatPop(s); } };
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeSeatPop(); });
+  $("#btnResetPresent").onclick = () => { if (confirm("清空到場名單？學生重新整理網頁後就會再出現。")) act({ present:{} }, "到場名單已清空"); };
+  $("#btnLogout").onclick = async () => {
+    if (DEMO) { location.href = location.pathname; return; }
+    if (T.mode === "code") {
+      if (!confirm(`離開後這台電腦會忘記這個會場。\n之後要回來，請記下會場代碼：${T.uid}`)) return;
+      ls.del(ROOM_KEY); T.mode = ""; T.uid = null; T.unsub?.();
+    }
+    await fbMods.au.signOut(fbMods.auth);
+    show("#login");
+  };
+  $("#settingsForm").onsubmit = async e => {
+    e.preventDefault();
+    const size = parseInt($("#sSize").value, 10);
+    if (!(size >= 1 && size <= 60)) return toast("座號人數請填 1 到 60", true);
+    const titles = $("#sTitles").value.split("\n").map(s => s.trim()).filter(Boolean);
+    if (await act({ "cfg.cls": $("#sCls").value.trim(), "cfg.org": $("#sOrg").value.trim(), "cfg.size": size, "cfg.titles": titles }, "設定已儲存")) $("#dlgSettings").close();
+  };
+  $("#btnExport").onclick = exportCSV;
+  $("#btnClearHist").onclick = () => { if (confirm("清空所有投票紀錄？這個動作無法復原，建議先下載 CSV。")) act({ history:{} }, "紀錄已清空").then(renderHistory); };
+}
+
+/* ================= 學生端 ================= */
+const S = { store:null, room:null, seat:null, key:"", sel:new Set(), selRound:null, prevView:"", submitting:false };
+const seatKey = () => "vote-seat-" + ROOM;
+
+async function bootStudent(){
+  S.seat = parseInt(ls.get(seatKey()), 10) || null;
+  if (DEMO) { S.store = localStore(); listenStudent(); return; }
+  try { await loadFirebase(); } catch { return studentFail("無法連線，請確認網路後重新整理。"); }
+  const { au, auth } = fbMods;
+  const user = await new Promise(res => { const off = au.onAuthStateChanged(auth, u => { off(); res(u); }); });
+  if (!user) { try { await au.signInAnonymously(auth); } catch (e) { return studentFail("無法進入會場：Firebase 還沒開啟「匿名登入」，請告訴老師。"); } }
+  S.store = firebaseStore(ROOM);
+  listenStudent();
+}
+function studentFail(msg){ show("#student"); $("#sView").innerHTML = `<div class="s-center"><h2>無法進入會場</h2><p>${esc(msg)}</p><div class="s-foot"><button class="btn" onclick="location.reload()">重新整理</button></div></div>`; }
+function listenStudent(){
+  show("#student");
+  S.store.subscribe(room => { document.querySelector(".conn")?.remove(); S.room = room; renderStudent(); }, e => {
+    if (!document.querySelector(".conn")) { const c = document.createElement("div"); c.className = "conn"; document.body.append(c); }
+    document.querySelector(".conn").textContent = e?.code?.includes("permission") ? "權限不足，請告訴老師" : "連線中斷，正在重新連線…";
+  });
+  try { navigator.wakeLock?.request("screen").catch(() => {}); } catch {}
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") try { navigator.wakeLock?.request("screen").catch(() => {}); } catch {} });
+}
+function myBallot(){ const r = S.room?.round; const b = S.room?.ballots?.[sk(S.seat)]; return r && b && b.r === r.id ? b : null; }
+function studentView(){
+  const R = S.room;
+  if (!R) return "noroom";
+  const size = R.cfg?.size || 29;
+  if (S.seat && S.seat > size) { S.seat = null; ls.del(seatKey()); }
+  if (!S.seat) return "seat";
+  if (R.round && R.status === "open") return myBallot() ? "done" : "ballot";
+  if (R.round && R.status === "closed") return "closed";
+  return "wait";
+}
+function renderStudent(){
+  const R = S.room, cls = R?.cfg?.cls ? R.cfg.cls + " " : "";
+  $("#sBrand").textContent = cls + orgName(R?.cfg);
+  $("#sTag").hidden = !S.seat; $("#sTag").textContent = S.seat + " 號";
+  const view = studentView();
+  const key = view + ":" + (R?.round?.id || "") + (view === "seat" ? JSON.stringify(Object.keys(R?.present || {})) : "");
+  if (key === S.key) return;
+  const prev = S.prevView, prevRound = S.prevRound; S.prevView = view; S.prevRound = R?.round?.id; S.key = key;
+  const box = $("#sView");
+  if (view === "noroom") box.innerHTML = `<div class="s-center"><h2>會場還沒開設</h2><p>請等老師登入後再掃描一次。</p></div>`;
+  else if (view === "seat") renderSeatPick();
+  else if (view === "wait") box.innerHTML = `<div class="s-center"><div class="badge-seat">${S.seat}<small>號</small></div><h2>候選室</h2><p>等老師開放下一場投票，選票會自動出現。</p><p class="waiting-dots" aria-hidden="true"><span></span><span></span><span></span></p><div class="s-foot"><button class="link" id="chSeat">我不是 ${S.seat} 號，更換座號</button></div></div>`;
+  else if (view === "ballot") renderBallot(prev === "done" && prevRound === R.round.id);
+  else if (view === "done") renderDone();
+  else if (view === "closed") {
+    const b = myBallot(), r = R.round;
+    box.innerHTML = `<div class="s-center"><h2>收票截止</h2><p>${esc(r.title)}的投票已經結束，請看大螢幕開票。</p>${b ? `<div class="mine">你圈選了：${b.p.map(i => esc(r.opts[i])).join("、")}</div>` : `<p>這一場你沒有投票。</p>`}</div>`;
+  }
+  const ch = $("#chSeat"); if (ch) ch.onclick = () => changeSeat();
+}
+function changeSeat(){
+  const old = S.seat; S.seat = null; ls.del(seatKey()); S.key = "";
+  if (old) S.store.update({ ["present." + sk(old)]: DEL }).catch(() => {});
+  renderStudent();
+}
+function renderSeatPick(){
+  const R = S.room, size = R.cfg?.size || 29, present = R.present || {};
+  let html = "";
+  for (let i = 1; i <= size; i++) { const p = present[sk(i)]; html += `<button data-s="${i}" class="${p && p.d !== deviceId ? "taken" : ""}">${i}</button>`; }
+  $("#sView").innerHTML = `<div class="seat-pick"><h2>請選擇你的座號</h2><p>選好之後會記住，下一場不用再選。</p><div class="seat-grid">${html}</div></div>`;
+  $(".seat-grid").onclick = async e => {
+    const b = e.target.closest("button"); if (!b) return;
+    const s = +b.dataset.s;
+    if (b.classList.contains("taken") && !confirm(`${s} 號已經有人使用，確定你是 ${s} 號嗎？`)) return;
+    S.seat = s; ls.set(seatKey(), String(s)); S.key = "";
+    try { await S.store.update({ ["present." + sk(s)]: { d:deviceId, t:Date.now() } }); } catch (e) { toast(errText(e), true); }
+    renderStudent();
+  };
+}
+function renderBallot(returned){
+  const r = S.room.round, cls = S.room.cfg?.cls;
+  if (S.selRound !== r.id || returned) { S.sel = new Set(); S.selRound = r.id; }
+  const rows = r.opts.map((o, i) => `<button class="c-row${S.sel.has(i) ? " on" : ""}" data-i="${i}" aria-pressed="${S.sel.has(i)}" style="--rot:${(i * 37 % 21) - 10}deg"><span class="num">${i + 1}</span><span class="nm">${esc(o)}</span><span class="box"><svg class="mark"><use href="#markSym"/></svg></span></button>`).join("");
+  $("#sView").innerHTML = `<div class="ballot" id="ballot">
+      <div class="ballot-head"><div class="org">${esc(cls ? cls + " 班 " : "")}${esc(orgName(S.room.cfg))}　${r.kind === "poll" ? "表決單" : "選票"}</div><h2>${esc(r.title)}</h2></div>
+      ${returned ? `<p class="ballot-note">你的選票被退回了，請重新圈選。</p>` : ""}
+      <div class="ballot-rule">${r.max === 1 ? `請圈選 <em>1</em> ${unitOf(r)}` : `最多圈選 <em>${r.max}</em> ${unitOf(r)}，已圈 <em id="cnt">${S.sel.size}</em> ${unitOf(r)}`}</div>
+      ${r.named === false ? `<p class="ballot-anon">這一場不記名，只公開票數。</p>` : ""}
+      <div class="cands" id="cands">${rows}</div>
+      <div class="ballot-foot"><div class="warn" id="warn"></div><button class="btn primary big" id="bCast" ${S.sel.size ? "" : "disabled"}>投入票匭</button></div>
+    </div>`;
+  $("#cands").onclick = e => {
+    const row = e.target.closest(".c-row"); if (!row) return;
+    const i = +row.dataset.i; $("#warn").textContent = "";
+    if (S.sel.has(i)) S.sel.delete(i);
+    else if (r.max === 1) S.sel = new Set([i]);
+    else if (S.sel.size >= r.max) { row.classList.remove("shake"); void row.offsetWidth; row.classList.add("shake"); $("#warn").textContent = `最多只能圈 ${r.max} ${unitOf(r)}，請先取消一${unitOf(r)}。`; return; }
+    else S.sel.add(i);
+    document.querySelectorAll(".c-row").forEach(x => { const on = S.sel.has(+x.dataset.i); x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
+    const c = $("#cnt"); if (c) c.textContent = S.sel.size;
+    $("#bCast").disabled = !S.sel.size;
+  };
+  $("#bCast").onclick = confirmCast;
+}
+function confirmCast(){
+  const r = S.room.round, picks = [...S.sel].sort((a, b) => a - b);
+  const sh = document.createElement("div"); sh.className = "sheet";
+  sh.innerHTML = `<div class="sheet-card" role="dialog" aria-modal="true"><h3>確定投給</h3><div class="picks">${picks.map(i => esc(r.opts[i])).join("、")}</div>${r.max > 1 && picks.length < r.max ? `<p style="margin:-10px 0 18px;color:var(--muted)">你還可以再圈 ${r.max - picks.length} ${unitOf(r)}，也可以就這樣投。</p>` : ""}<div class="btns"><button class="btn" id="shBack">返回修改</button><button class="btn primary" id="shOk">確定投入</button></div></div>`;
+  document.body.append(sh);
+  sh.querySelector("#shBack").onclick = () => sh.remove();
+  sh.addEventListener("click", e => { if (e.target === sh) sh.remove(); });
+  sh.querySelector("#shOk").onclick = async () => {
+    if (S.submitting) return; S.submitting = true;
+    sh.remove();
+    const roundId = r.id, ballot = $("#ballot");
+    const latest = S.room;
+    if (!latest.round || latest.round.id !== roundId || latest.status !== "open") { S.submitting = false; S.key = ""; renderStudent(); return toast("這一場已經截止", true); }
+    const other = latest.ballots?.[sk(S.seat)];
+    if (other && other.r === roundId && other.d !== deviceId && !confirm(`${S.seat} 號已經投過票了，你確定你是 ${S.seat} 號嗎？送出會蓋掉之前那張。`)) { S.submitting = false; return; }
+    ballot.classList.add("drop");
+    await new Promise(res => setTimeout(res, matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 600));
+    try {
+      await S.store.update({ ["ballots." + sk(S.seat)]: { r:roundId, p:picks, t:Date.now(), d:deviceId }, ["present." + sk(S.seat)]: { d:deviceId, t:Date.now() } });
+    } catch (e) { ballot.classList.remove("drop"); toast(errText(e), true); }
+    S.submitting = false;
+  };
+}
+function renderDone(){
+  const r = S.room.round, b = myBallot();
+  $("#sView").innerHTML = `<div class="s-center">
+    <svg class="urn" viewBox="0 0 180 150" aria-hidden="true">
+      <g class="slip"><rect x="72" y="6" width="36" height="44" rx="2" fill="#fff" stroke="#1E2B45" stroke-width="2"/><use href="#markSym" x="78" y="14" width="24" height="24" style="color:#C42A2F"/></g>
+      <rect x="20" y="58" width="140" height="84" rx="6" fill="#1E2B45"/><rect x="20" y="50" width="140" height="16" rx="4" fill="#3A4866"/><rect x="62" y="54" width="56" height="7" rx="3" fill="#0F1628"/>
+      <text x="90" y="112" text-anchor="middle" fill="#fff" font-family="Noto Serif TC,serif" font-weight="900" font-size="26" letter-spacing="4">票匭</text>
+    </svg>
+    <h2>選票已投入票匭</h2><p>等其他同學投完，截止後會在大螢幕開票。</p>
+    <div class="mine">你圈選了：${b ? b.p.map(i => esc(r.opts[i])).join("、") : ""}</div></div>`;
+}
+
+/* ================= 啟動 ================= */
+if (IS_STUDENT) bootStudent();
+else { bindTeacherChrome(); bootTeacher(); }
+</script>
+</body>
+</html>
