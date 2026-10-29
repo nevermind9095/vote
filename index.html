@@ -125,11 +125,12 @@ input,textarea,select{font:inherit;color:inherit}
 @keyframes blink{50%{opacity:.45}}
 .progress{height:8px;background:rgba(255,255,255,.12);border-radius:4px;margin:4px 8px 18px;overflow:hidden}
 .progress i{display:block;height:100%;background:var(--chalk-y);transition:width .4s}
-.cand{display:grid;grid-template-columns:44px minmax(140px,240px) 1fr 70px;align-items:center;gap:14px;padding:12px 8px;border-top:1px dashed rgba(238,240,230,.22);position:relative}
+.cand{display:grid;grid-template-columns:44px minmax(140px,240px) 1fr 110px;align-items:center;gap:14px;padding:12px 8px;border-top:1px dashed rgba(238,240,230,.22);position:relative}
 .cand .no{font-size:22px;color:var(--chalk-dim);text-align:center}
 .cand .name{font-size:30px;font-weight:700;line-height:1.25;word-break:break-all}
 .cand .tally{display:flex;flex-wrap:wrap;gap:4px;min-height:44px;align-items:center}
-.cand .count{font-size:40px;font-weight:700;text-align:right;color:var(--chalk-y)}
+.cand .count{font-size:40px;font-weight:700;text-align:right;color:var(--chalk-y);white-space:nowrap}
+.cand .count:not(:empty)::after{content:"票";font-size:20px;margin-left:4px;color:var(--chalk-dim)}
 .cand .voters{grid-column:2/-1;display:flex;flex-wrap:wrap;gap:4px;font-family:var(--sans);font-size:14px;margin-top:-4px}
 .cand .voters span{border:1px solid rgba(238,240,230,.35);border-radius:4px;padding:0 6px;color:var(--chalk-dim)}
 .cand.lose .name,.cand.lose .count{opacity:.55}
@@ -138,7 +139,7 @@ input,textarea,select{font:inherit;color:inherit}
 .tg path{fill:none;stroke:var(--chalk);stroke-width:3.6;stroke-linecap:round}
 .tg path.new{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .22s ease-out forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
-.win{position:absolute;right:96px;top:50%;font-family:var(--serif);font-weight:900;color:#fff;background:var(--stamp);border:3px double #fff;padding:2px 12px;font-size:24px;letter-spacing:.15em;transform:translateY(-50%) rotate(-9deg) scale(1);opacity:0;animation:stampIn .35s cubic-bezier(.2,1.6,.4,1) forwards;box-shadow:0 2px 0 rgba(0,0,0,.25)}
+.win{position:absolute;right:136px;top:50%;font-family:var(--serif);font-weight:900;color:#fff;background:var(--stamp);border:3px double #fff;padding:2px 12px;font-size:24px;letter-spacing:.15em;transform:translateY(-50%) rotate(-9deg) scale(1);opacity:0;animation:stampIn .35s cubic-bezier(.2,1.6,.4,1) forwards;box-shadow:0 2px 0 rgba(0,0,0,.25)}
 .win.tie{background:transparent;color:var(--chalk-y);border-color:var(--chalk-y)}
 @keyframes stampIn{from{opacity:0;transform:translateY(-50%) rotate(-9deg) scale(2.2)}to{opacity:1;transform:translateY(-50%) rotate(-9deg) scale(1)}}
 .board-note{margin:16px 8px 0;font-size:22px;color:var(--chalk-y)}
@@ -167,13 +168,15 @@ dialog::backdrop{background:rgba(20,28,45,.55)}
 .qr-huge #qrHuge img,.qr-huge #qrHuge canvas{width:min(70vh,560px);height:min(70vh,560px)}
 .qr-huge h2{font-family:var(--serif);font-size:40px;margin:0 0 18px}
 .qr-huge p{color:var(--muted);word-break:break-all;margin:14px 0 0;font-size:15px}
+.hint-line{color:var(--muted);font-size:14px;margin:0 0 12px}
 .set-code{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:0 0 18px;font-size:15px}
 .set-code b{font-family:var(--serif);font-size:20px;letter-spacing:.12em}
 .hist-item{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:10px}
 .hist-item h4{margin:0;font-family:var(--serif);font-size:19px}
 .hist-item .meta{color:var(--muted);font-size:14px}
-.hist-item .res{margin-top:4px}
-.hist-item .res b{color:var(--stamp)}
+.hist-item .res{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
+.hr{border:1px solid var(--line);border-radius:6px;padding:1px 10px;background:var(--paper)}
+.hr.w{border-color:var(--stamp);color:var(--stamp);font-weight:700;background:#fff}
 .help h4{font-family:var(--serif);font-size:20px;margin:22px 0 6px}
 .help h4:first-child{margin-top:0}
 .help ol,.help ul{padding-left:1.4em;margin:6px 0}
@@ -222,8 +225,8 @@ dialog::backdrop{background:rgba(20,28,45,.55)}
 .c-row .num{display:grid;place-items:center;border-right:1.5px solid var(--ink);font-family:var(--serif);font-size:22px;font-weight:600}
 .c-row .nm{display:flex;align-items:center;padding:8px 14px;font-family:var(--serif);font-weight:600;font-size:clamp(22px,5vw,30px);line-height:1.25;word-break:break-all}
 .c-row .box{border-left:1.5px solid var(--ink);display:grid;place-items:center;position:relative}
-.c-row .box .mark{width:64px;height:64px;opacity:0;transform:scale(1.8) rotate(var(--rot,0deg));transition:none}
-.c-row.on .box .mark{opacity:.92;transform:scale(1) rotate(var(--rot,0deg));transition:transform .18s cubic-bezier(.2,1.5,.4,1),opacity .1s}
+.c-row .box .mark{width:64px;height:64px;opacity:.92;transform:rotate(var(--rot,0deg));animation:stampDown .18s cubic-bezier(.2,1.5,.4,1)}
+@keyframes stampDown{from{opacity:0;transform:scale(1.8) rotate(var(--rot,0deg))}}
 .c-row:active{background:rgba(30,43,69,.04)}
 .c-row.shake{animation:shake .35s}
 @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
@@ -240,6 +243,9 @@ dialog::backdrop{background:rgba(20,28,45,.55)}
 .urn{width:180px;height:150px;margin:0 auto 10px;display:block}
 .urn .slip{animation:slip .8s ease-in both}
 @keyframes slip{from{transform:translateY(-60px);opacity:0}60%{opacity:1}to{transform:translateY(18px);opacity:0}}
+.result-card{display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:14px auto 4px;padding:16px 30px;border:3px double var(--stamp);border-radius:6px;background:#fff;transform:rotate(-2deg)}
+.result-card span{color:var(--stamp);font-family:var(--serif);font-weight:900;letter-spacing:.2em;font-size:18px}
+.result-card b{font-family:var(--serif);font-size:30px;line-height:1.3}
 .mine{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 16px;margin:18px auto 0;font-family:var(--serif);font-size:20px;max-width:420px}
 .conn{position:fixed;left:0;right:0;top:0;background:var(--stamp);color:#fff;text-align:center;padding:6px;z-index:60;font-weight:500}
 
@@ -263,7 +269,7 @@ dialog::backdrop{background:rgba(20,28,45,.55)}
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter>
+    <filter id="ink" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="3" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="5"/></filter>
     <symbol id="markSym" viewBox="0 0 100 100"><g filter="url(#ink)" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round"><circle cx="50" cy="50" r="40"/><path d="M45 22 V80"/><path d="M50 44 L67 55"/></g></symbol>
   </defs>
 </svg>
@@ -329,6 +335,12 @@ dialog::backdrop{background:rgba(20,28,45,.55)}
 <!-- dialogs -->
 <dialog id="dlgQR"><div class="qr-huge"><h2>掃描進入候選室</h2><div id="qrHuge"></div><p id="qrUrl"></p><div style="margin-top:18px"><button class="btn" data-close>關閉</button></div></div></dialog>
 
+<dialog id="dlgPhone">
+  <div class="dlg-head"><h3>用手機看票數</h3><button data-close aria-label="關閉">×</button></div>
+  <div class="dlg-body help" id="phoneBody"></div>
+  <div class="dlg-foot"><button class="btn primary" data-close>知道了</button></div>
+</dialog>
+
 <dialog id="dlgSettings">
   <div class="dlg-head"><h3>設定</h3><button data-close aria-label="關閉">×</button></div>
   <form id="settingsForm">
@@ -375,7 +387,7 @@ dialog::backdrop{background:rgba(20,28,45,.55)}
       <dt>學生投錯了</dt><dd>點他的座號格子，按「退回選票」，他的平板會回到選票畫面重新圈選。</dd>
       <dt>選項打錯字</dt><dd>投票中按「取消本場」，剛才的設定會留在表單裡，改好再開一次。</dd>
       <dt>同票</dt><dd>名額卡在同票時，黑板會標出「同票」，按「同票者重新投票」只讓同票的再選一次，名額自動算好。</dd>
-      <dt>不想讓全班看到即時票數</dt><dd>投票中預設遮蔽票數，只看得到投票進度。要偷看可以勾「顯示即時票數」。截止後才會正式開票。</dd>
+      <dt>票數只給老師看</dt><dd>預設不顯示票數：投票中只看得到進度，開票時只蓋上當選章，學生平板上也只公布結果。「顯示票數（這台螢幕）」只影響勾選的那台裝置，所以可以讓投影的電腦不勾、自己的手機勾，私下看票數和記名明細。投票畫面上的「用手機看票數」有步驟。下載的 CSV 一律有完整票數。</dd>
       <dt>保存結果</dt><dd>每按一次「下一場」，那一場就存進「投票紀錄」，可以下載 CSV 用 Excel 打開。</dd>
     </dl>
     <h4>要不要登入</h4>
@@ -527,7 +539,7 @@ const winWord = r => r.kind === "poll" ? (r.quota === 1 ? "最高票" : "入選"
 const goalText = r => r.kind === "poll" ? (r.quota ? `選出 ${r.quota} 項` : "只統計票數") : `應選 ${r.quota} 名`;
 
 /* ================= 教師端 ================= */
-let T = { store:null, room:null, uid:null, mode:"", live:false, seatPop:null, stageKey:"", shown:null, shownRound:null, draft:null };
+let T = { store:null, room:null, uid:null, mode:"", live: ls.get("vote-show-counts") === "1", seatPop:null, stageKey:"", shown:null, shownRound:null, draft:null };
 const ROOM_KEY = "vote-room";
 const orgName = cfg => (cfg?.org || "").trim() || "投票委員會";
 function loginErr(msg){ show("#login"); $("#loginErr").textContent = msg || ""; }
@@ -778,12 +790,12 @@ function tallySVG(n, from, step){
 function boardHTML(){
   const R = T.room, r = R.round, size = R.cfg?.size || 29;
   const t = tallyOf(r, R.ballots), closed = R.status === "closed";
-  const visible = closed || T.live;
+  const visible = T.live;
   if (T.shownRound !== r.id || !visible) { T.shown = null; T.shownRound = r.id; }
   const from = T.shown || r.opts.map(() => 0);
   const maxNew = Math.max(0, ...t.counts.map((c, i) => c - Math.min(c, from[i])));
   const step = maxNew ? Math.min(90, 2400 / maxNew) : 0;
-  const winDelay = maxNew * step + 250;
+  const winDelay = visible ? maxNew * step + 250 : 500;
   const res = closed ? resultOf(t.counts, r.quota) : null;
   const pct = Math.round(t.n / size * 100);
   const rows = r.opts.map((name, i) => {
@@ -791,12 +803,12 @@ function boardHTML(){
     if (res) {
       if (res.elected.includes(i)) badge = `<span class="win" style="animation-delay:${winDelay}ms">${winWord(r)}</span>`;
       else if (res.tied.includes(i)) badge = `<span class="win tie" style="animation-delay:${winDelay}ms">同票</span>`;
-      else lose = r.quota > 0;
+      else lose = visible && r.quota > 0;
     }
     const tal = visible ? tallySVG(t.counts[i], Math.min(t.counts[i], from[i]), step) : "";
     const voters = visible && r.named !== false && t.voters[i].length ? `<div class="voters">${t.voters[i].map(s => `<span>${s}號</span>`).join("")}</div>` : "";
     return `<div class="cand${lose ? " lose" : ""}"><div class="no">${i + 1}</div><div class="name">${esc(name)}</div>
-      <div class="tally">${visible ? tal : '<span class="veiled">票數遮蔽中</span>'}</div>
+      <div class="tally">${visible ? tal : closed ? "" : '<span class="veiled">票數遮蔽中</span>'}</div>
       <div class="count" data-to="${t.counts[i]}" data-from="${visible ? Math.min(t.counts[i], from[i]) : 0}">${visible ? Math.min(t.counts[i], from[i]) : ""}</div>${badge}${voters}</div>`;
   }).join("");
   T.shown = visible ? t.counts.slice() : null;
@@ -804,14 +816,18 @@ function boardHTML(){
   let note = "";
   if (res && res.tied.length) note = `<p class="board-note">同票 ${res.tied.length} ${r.kind === "poll" ? "項" : "人"}爭取 ${res.remaining} 個名額，可以按下方「同票者重新投票」。</p>`;
   if (res && !t.n) note = `<p class="board-note">這一場沒有收到任何選票。</p>`;
+  if (res && !visible && t.n && r.quota === 0) note = `<p class="board-note">這一場只統計票數。勾選下方「顯示票數」才會出現結果。</p>`;
   const actions = closed
     ? `<button class="btn primary big" id="bNext">下一場（全員回候選室）</button>
        ${res.tied.length ? `<button class="btn" id="bTie">同票者重新投票</button>` : ""}
+       <label class="toggle" title="只影響這台螢幕，不會改到其他裝置"><input type="checkbox" id="bLive" ${T.live ? "checked" : ""}>顯示票數（這台螢幕）</label>
+       <button type="button" class="link" id="bPhone">用手機看票數</button>
        <span class="spacer"></span>
        <button class="btn" id="bReopen">繼續收票</button>
        <button class="btn danger" id="bRedo">整場重投</button>`
     : `<button class="btn primary big" id="bClose">截止收票，開票</button>
-       <label class="toggle"><input type="checkbox" id="bLive" ${T.live ? "checked" : ""}>顯示即時票數</label>
+       <label class="toggle" title="只影響這台螢幕，不會改到其他裝置"><input type="checkbox" id="bLive" ${T.live ? "checked" : ""}>顯示票數（這台螢幕）</label>
+       <button type="button" class="link" id="bPhone">用手機看票數</button>
        <span class="spacer"></span>
        <button class="btn" id="bRedo">整場重投</button>
        <button class="btn danger" id="bCancel">取消本場</button>`;
@@ -831,7 +847,8 @@ function bindBoard(){
     setTimeout(tick, T.anim.step);
   });
   const on = (id, fn) => { const b = $("#" + id); if (b) b.onclick = fn; };
-  on("bLive", () => { T.live = $("#bLive").checked; renderStage(); });
+  on("bLive", () => { T.live = $("#bLive").checked; ls.set("vote-show-counts", T.live ? "1" : "0"); T.shown = null; renderStage(); });
+  on("bPhone", openPhone);
   on("bClose", () => act({ status:"closed" }));
   on("bReopen", () => act({ status:"open" }));
   on("bCancel", () => {
@@ -841,18 +858,16 @@ function bindBoard(){
   });
   on("bRedo", () => {
     if (!confirm("整場重投？已收到的選票會全部作廢，學生畫面會重新出現選票。")) return;
-    const r = T.room.round; T.live = false;
+    const r = T.room.round;
     act({ status:"open", round:{ ...r, id:newId(), ts:Date.now() }, ballots:{} });
   });
   on("bNext", async () => {
-    T.live = false;
     await act({ ["history." + T.room.round.id]: archive(), status:"lobby", round:null, ballots:{} }, "已存入投票紀錄，全員回到候選室");
   });
   on("bTie", async () => {
     const r = T.room.round, t = tallyOf(r, T.room.ballots), res = resultOf(t.counts, r.quota);
     const opts = res.tied.map(i => r.opts[i]);
     if (!confirm(`讓 ${opts.join("、")} 重新投票，爭取 ${res.remaining} 個名額？`)) return;
-    T.live = false;
     await act({ ["history." + r.id]: archive(true), status:"open", round:{ id:newId(), kind:r.kind || "elect", named:r.named !== false, title:r.title, opts, quota:res.remaining, max:Math.min(r.max, res.remaining), ts:Date.now(), parent:r.id }, ballots:{} });
   });
 }
@@ -885,6 +900,16 @@ function openSeatPop(seat, keep){
   const v = pop.querySelector("#pVoid"); if (v) v.onclick = async () => { if (await act({ ["ballots." + sk(seat)]: DEL }, `${seat} 號的選票已退回`)) closeSeatPop(); };
   const k = pop.querySelector("#pKick"); if (k) k.onclick = async () => { if (await act({ ["present." + sk(seat)]: DEL })) closeSeatPop(); };
 }
+function openPhone(){
+  const url = location.origin + location.pathname;
+  const how = T.mode === "code"
+    ? `<li>在首頁點「用會場代碼接手既有會場」，輸入 <b style="font-family:var(--serif);letter-spacing:.12em">${esc(T.uid)}</b>。</li>`
+    : T.mode === "google" ? `<li>用同一個 Google 帳號登入。</li>` : `<li>展示模式只能在這台電腦的分頁間互通，請開新分頁試。</li>`;
+  $("#phoneBody").innerHTML = `<p>投影的電腦保持「不顯示票數」，你自己的手機打開同一個會場，勾選「顯示票數」，就能私下看到每個選項的票數和記名明細。兩邊同步，勾選只影響那一台。</p>
+    <ol><li>手機打開 <b>${esc(url)}</b></li>${how}<li>在投票畫面勾選「顯示票數（這台螢幕）」。</li></ol>
+    <p>手機也能直接按「截止收票」「下一場」，可以拿著手機在教室走動操作。</p>`;
+  $("#dlgPhone").showModal();
+}
 function closeSeatPop(){ document.querySelector(".pop")?.remove(); T.seatPop = null; document.querySelectorAll(".seat.sel").forEach(s => s.classList.remove("sel")); }
 
 /* ---------- 對話框 ---------- */
@@ -900,10 +925,13 @@ function openSettings(first){
 function renderHistory(){
   const list = Object.entries(T.room.history || {}).sort((a, b) => a[1].at - b[1].at);
   if (!list.length) { $("#histBody").innerHTML = `<p>還沒有紀錄。每按一次「下一場」，那一場的結果就會存到這裡。</p>`; return; }
-  $("#histBody").innerHTML = list.map(([id, h]) => {
+  $("#histBody").innerHTML = (T.live ? "" : `<p class="hint-line">這台螢幕設定為不顯示票數，所以只列出結果。要看票數，在投票畫面勾選「顯示票數（這台螢幕）」，或下載 CSV。</p>`) + list.map(([id, h]) => {
     const t = histTally(h), res = resultOf(t.counts, h.quota);
     const d = new Date(h.at);
-    const ranking = h.opts.map((o, i) => [o, t.counts[i], i]).sort((a, b) => b[1] - a[1]).map(([o, c, i]) => res.elected.includes(i) ? `<b>${esc(o)} ${c}</b>` : `${esc(o)} ${c}`).join("、");
+    let ranking;
+    if (T.live) ranking = h.opts.map((o, i) => [o, t.counts[i], i]).sort((a, b) => b[1] - a[1]).map(([o, c, i]) => `<span class="hr${res.elected.includes(i) ? " w" : ""}">${esc(o)}：${c} 票${res.elected.includes(i) ? `（${winWord(h)}）` : ""}</span>`).join("");
+    else ranking = res.elected.length ? `<span class="hr w">${winWord(h)}：${res.elected.map(i => esc(h.opts[i])).join("、")}</span>` + (res.tied.length ? `<span class="hr">同票：${res.tied.map(i => esc(h.opts[i])).join("、")}</span>` : "")
+      : res.tied.length ? `<span class="hr">同票：${res.tied.map(i => esc(h.opts[i])).join("、")}</span>` : `<span class="hr">這台螢幕不顯示票數</span>`;
     return `<div class="hist-item"><h4>${esc(h.title)}</h4><div class="meta">${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}，${h.kind === "poll" ? "表決" : "選舉"}，${goalText(h)}，收 ${t.n} 張${h.named === false ? "，不記名" : ""}${h.tie ? "，同票後已重投" : ""}</div><div class="res">${ranking}</div></div>`;
   }).join("");
 }
@@ -965,6 +993,7 @@ function bindTeacherChrome(){
 /* ================= 學生端 ================= */
 const S = { store:null, room:null, seat:null, key:"", sel:new Set(), selRound:null, prevView:"", submitting:false };
 const seatKey = () => "vote-seat-" + ROOM;
+const MARK = '<svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#markSym"/></svg>';
 
 async function bootStudent(){
   S.seat = parseInt(ls.get(seatKey()), 10) || null;
@@ -1002,7 +1031,7 @@ function renderStudent(){
   $("#sBrand").textContent = cls + orgName(R?.cfg);
   $("#sTag").hidden = !S.seat; $("#sTag").textContent = S.seat + " 號";
   const view = studentView();
-  const key = view + ":" + (R?.round?.id || "") + (view === "seat" ? JSON.stringify(Object.keys(R?.present || {})) : "");
+  const key = view + ":" + (R?.round?.id || "") + (view === "closed" ? ":" + JSON.stringify(tallyOf(R.round, R.ballots).counts) : "") + (view === "seat" ? JSON.stringify(Object.keys(R?.present || {})) : "");
   if (key === S.key) return;
   const prev = S.prevView, prevRound = S.prevRound; S.prevView = view; S.prevRound = R?.round?.id; S.key = key;
   const box = $("#sView");
@@ -1013,7 +1042,10 @@ function renderStudent(){
   else if (view === "done") renderDone();
   else if (view === "closed") {
     const b = myBallot(), r = R.round;
-    box.innerHTML = `<div class="s-center"><h2>收票截止</h2><p>${esc(r.title)}的投票已經結束，請看大螢幕開票。</p>${b ? `<div class="mine">你圈選了：${b.p.map(i => esc(r.opts[i])).join("、")}</div>` : `<p>這一場你沒有投票。</p>`}</div>`;
+    const res = resultOf(tallyOf(r, R.ballots).counts, r.quota);
+    const result = res.elected.length ? `<div class="result-card"><span>${winWord(r)}</span><b>${res.elected.map(i => esc(r.opts[i])).join("、")}</b></div>` : "";
+    const tied = res.tied.length ? `<p>${res.tied.map(i => esc(r.opts[i])).join("、")} 同票，請等老師安排重新投票。</p>` : "";
+    box.innerHTML = `<div class="s-center"><h2>開票結果</h2><p>${esc(r.title)}</p>${result}${tied}${!result && !tied ? `<p>請看大螢幕。</p>` : ""}${b ? `<div class="mine">你圈選了：${b.p.map(i => esc(r.opts[i])).join("、")}</div>` : `<p>這一場你沒有投票。</p>`}</div>`;
   }
   const ch = $("#chSeat"); if (ch) ch.onclick = () => changeSeat();
 }
@@ -1039,7 +1071,7 @@ function renderSeatPick(){
 function renderBallot(returned){
   const r = S.room.round, cls = S.room.cfg?.cls;
   if (S.selRound !== r.id || returned) { S.sel = new Set(); S.selRound = r.id; }
-  const rows = r.opts.map((o, i) => `<button class="c-row${S.sel.has(i) ? " on" : ""}" data-i="${i}" aria-pressed="${S.sel.has(i)}" style="--rot:${(i * 37 % 21) - 10}deg"><span class="num">${i + 1}</span><span class="nm">${esc(o)}</span><span class="box"><svg class="mark"><use href="#markSym"/></svg></span></button>`).join("");
+  const rows = r.opts.map((o, i) => `<button class="c-row${S.sel.has(i) ? " on" : ""}" data-i="${i}" aria-pressed="${S.sel.has(i)}" style="--rot:${(i * 37 % 21) - 10}deg"><span class="num">${i + 1}</span><span class="nm">${esc(o)}</span><span class="box">${S.sel.has(i) ? MARK : ""}</span></button>`).join("");
   $("#sView").innerHTML = `<div class="ballot" id="ballot">
       <div class="ballot-head"><div class="org">${esc(cls ? cls + " 班 " : "")}${esc(orgName(S.room.cfg))}　${r.kind === "poll" ? "表決單" : "選票"}</div><h2>${esc(r.title)}</h2></div>
       ${returned ? `<p class="ballot-note">你的選票被退回了，請重新圈選。</p>` : ""}
@@ -1055,7 +1087,11 @@ function renderBallot(returned){
     else if (r.max === 1) S.sel = new Set([i]);
     else if (S.sel.size >= r.max) { row.classList.remove("shake"); void row.offsetWidth; row.classList.add("shake"); $("#warn").textContent = `最多只能圈 ${r.max} ${unitOf(r)}，請先取消一${unitOf(r)}。`; return; }
     else S.sel.add(i);
-    document.querySelectorAll(".c-row").forEach(x => { const on = S.sel.has(+x.dataset.i); x.classList.toggle("on", on); x.setAttribute("aria-pressed", on); });
+    document.querySelectorAll(".c-row").forEach(x => {
+      const on = S.sel.has(+x.dataset.i), box = x.querySelector(".box");
+      if (on !== x.classList.contains("on")) box.innerHTML = on ? MARK : "";
+      x.classList.toggle("on", on); x.setAttribute("aria-pressed", on);
+    });
     const c = $("#cnt"); if (c) c.textContent = S.sel.size;
     $("#bCast").disabled = !S.sel.size;
   };
