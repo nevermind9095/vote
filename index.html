@@ -250,17 +250,43 @@ dialog::backdrop{background:rgba(20,28,45,.55)}
 .conn{position:fixed;left:0;right:0;top:0;background:var(--stamp);color:#fff;text-align:center;padding:6px;z-index:60;font-weight:500}
 
 @media (max-width: 960px){
-  .layout{grid-template-columns:1fr}
-  .hall{border-right:0;border-bottom:1px solid var(--line)}
+  .layout{display:flex;flex-direction:column}
+  .stage{order:-1;padding:16px 12px}
+  .hall{border-right:0;border-top:1px solid var(--line)}
+  .qr-card #qr img,.qr-card #qr canvas{width:150px;height:150px}
+  .qr-card #qr{min-height:150px}
   .seats{grid-template-columns:repeat(auto-fill,minmax(44px,1fr))}
-  .stage{padding:20px 16px}
-  .row2{grid-template-columns:1fr}
-  .cand{grid-template-columns:34px 1fr 56px}
-  .cand .tally{grid-column:2/3;grid-row:2}
-  .cand .name{font-size:24px}
-  .win{right:64px}
-  .bar{padding:10px 16px;flex-wrap:wrap}
+  .row2{grid-template-columns:1fr;gap:0}
+  .bar{padding:8px 12px;flex-wrap:wrap;gap:8px}
+  .brand{font-size:18px}
+  .bar nav button{font-size:14px;padding:.25em .7em}
+  .board{padding:16px 14px 18px;box-shadow:inset 0 0 0 6px #5B4632, inset 0 0 0 7px #3E2F22}
+  .board-head{padding:4px 4px 0;gap:10px}
+  .board-title{font-size:26px}
+  .board-meta{font-size:15px;line-height:1.5}
+  .board-status{font-size:15px;padding:2px 8px}
+  .progress{margin:4px 4px 10px}
+  .cand{grid-template-columns:26px 1fr auto;gap:4px 10px;padding:10px 4px}
+  .cand .no{font-size:16px}
+  .cand .name{font-size:22px}
+  .cand .count{font-size:28px}
+  .cand .count:not(:empty)::after{font-size:15px}
+  .cand .tally{grid-column:2/-1;grid-row:2;min-height:0}
+  .cand .tally:empty{display:none}
+  .cand .voters{grid-column:2/-1;margin-top:0}
+  .tg{width:30px;height:30px}
+  .veiled{font-size:15px}
+  .win{right:auto;left:60%;font-size:17px;padding:1px 8px}
+  .board-note{font-size:17px;margin:10px 4px 0}
+  .actions{gap:10px}
+  .actions .spacer{display:none}
+  .actions .btn.big{width:100%}
+  .setup h2{font-size:24px}
+  #bPeek{display:none}
 }
+body.peek .hall{display:none}
+body.peek .layout{display:block}
+body.peek .bar nav{display:none}
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
 }
@@ -387,7 +413,8 @@ dialog::backdrop{background:rgba(20,28,45,.55)}
       <dt>學生投錯了</dt><dd>點他的座號格子，按「退回選票」，他的平板會回到選票畫面重新圈選。</dd>
       <dt>選項打錯字</dt><dd>投票中按「取消本場」，剛才的設定會留在表單裡，改好再開一次。</dd>
       <dt>同票</dt><dd>名額卡在同票時，黑板會標出「同票」，按「同票者重新投票」只讓同票的再選一次，名額自動算好。</dd>
-      <dt>票數只給老師看</dt><dd>預設不顯示票數：投票中只看得到進度，開票時只蓋上當選章，學生平板上也只公布結果。「顯示票數（這台螢幕）」只影響勾選的那台裝置，所以可以讓投影的電腦不勾、自己的手機勾，私下看票數和記名明細。投票畫面上的「用手機看票數」有步驟。下載的 CSV 一律有完整票數。</dd>
+      <dt>票數只給老師看</dt><dd>預設不顯示票數：投票中只看得到進度，開票時只蓋上當選章，學生平板上也只公布結果。「顯示票數（這個分頁）」只影響勾選的那個分頁或裝置，所以可以讓投影的電腦不勾、自己的手機勾，私下看票數和記名明細。下載的 CSV 一律有完整票數。</dd>
+      <dt>老師在同一台電腦看票數</dt><dd>按「開票數小視窗」，會跳出一個只有黑板、預設顯示票數的小視窗。只有電腦接投影是「延伸桌面」時才適合：把小視窗拖到筆電螢幕，投影那一側學生看不到。如果投影是「同步顯示」（投影跟電腦畫面一樣），小視窗也會被投出去，這時請用手機看（投票畫面上的「用手機看」有步驟）。</dd>
       <dt>保存結果</dt><dd>每按一次「下一場」，那一場就存進「投票紀錄」，可以下載 CSV 用 Excel 打開。</dd>
     </dl>
     <h4>要不要登入</h4>
@@ -435,6 +462,9 @@ const params = new URLSearchParams(location.search);
 const DEMO = params.has("demo");
 const ROOM = params.get("room");
 const IS_STUDENT = !!ROOM;
+const PEEK = params.has("peek");
+const tabGet = k => { try { return sessionStorage.getItem(k); } catch { return null; } };
+const tabSet = (k, v) => { try { sessionStorage.setItem(k, v); } catch {} };
 const DEL = Symbol("delete");
 
 const $ = s => document.querySelector(s);
@@ -539,7 +569,7 @@ const winWord = r => r.kind === "poll" ? (r.quota === 1 ? "最高票" : "入選"
 const goalText = r => r.kind === "poll" ? (r.quota ? `選出 ${r.quota} 項` : "只統計票數") : `應選 ${r.quota} 名`;
 
 /* ================= 教師端 ================= */
-let T = { store:null, room:null, uid:null, mode:"", live: ls.get("vote-show-counts") === "1", seatPop:null, stageKey:"", shown:null, shownRound:null, draft:null };
+let T = { store:null, room:null, uid:null, mode:"", live: (tabGet("vote-show-counts") ?? (PEEK ? "1" : "0")) === "1", seatPop:null, stageKey:"", shown:null, shownRound:null, draft:null };
 const ROOM_KEY = "vote-room";
 const orgName = cfg => (cfg?.org || "").trim() || "投票委員會";
 function loginErr(msg){ show("#login"); $("#loginErr").textContent = msg || ""; }
@@ -617,7 +647,7 @@ function renderTeacher(){
   const R = T.room, cfg = R.cfg || {};
   const name = (cfg.cls ? cfg.cls + " " : "") + orgName(cfg);
   $("#tBrand").textContent = name;
-  document.title = name;
+  document.title = PEEK ? "票數視窗｜" + name : name;
   renderSeats();
   renderStage();
 }
@@ -820,14 +850,14 @@ function boardHTML(){
   const actions = closed
     ? `<button class="btn primary big" id="bNext">下一場（全員回候選室）</button>
        ${res.tied.length ? `<button class="btn" id="bTie">同票者重新投票</button>` : ""}
-       <label class="toggle" title="只影響這台螢幕，不會改到其他裝置"><input type="checkbox" id="bLive" ${T.live ? "checked" : ""}>顯示票數（這台螢幕）</label>
-       <button type="button" class="link" id="bPhone">用手機看票數</button>
+       <label class="toggle" title="只影響這個分頁，不會改到其他分頁或裝置"><input type="checkbox" id="bLive" ${T.live ? "checked" : ""}>顯示票數（這個分頁）</label>
+       ${PEEK ? "" : `<button type="button" class="link" id="bPeek">開票數小視窗</button><button type="button" class="link" id="bPhone">用手機看</button>`}
        <span class="spacer"></span>
        <button class="btn" id="bReopen">繼續收票</button>
        <button class="btn danger" id="bRedo">整場重投</button>`
     : `<button class="btn primary big" id="bClose">截止收票，開票</button>
-       <label class="toggle" title="只影響這台螢幕，不會改到其他裝置"><input type="checkbox" id="bLive" ${T.live ? "checked" : ""}>顯示票數（這台螢幕）</label>
-       <button type="button" class="link" id="bPhone">用手機看票數</button>
+       <label class="toggle" title="只影響這個分頁，不會改到其他分頁或裝置"><input type="checkbox" id="bLive" ${T.live ? "checked" : ""}>顯示票數（這個分頁）</label>
+       ${PEEK ? "" : `<button type="button" class="link" id="bPeek">開票數小視窗</button><button type="button" class="link" id="bPhone">用手機看</button>`}
        <span class="spacer"></span>
        <button class="btn" id="bRedo">整場重投</button>
        <button class="btn danger" id="bCancel">取消本場</button>`;
@@ -847,8 +877,9 @@ function bindBoard(){
     setTimeout(tick, T.anim.step);
   });
   const on = (id, fn) => { const b = $("#" + id); if (b) b.onclick = fn; };
-  on("bLive", () => { T.live = $("#bLive").checked; ls.set("vote-show-counts", T.live ? "1" : "0"); T.shown = null; renderStage(); });
+  on("bLive", () => { T.live = $("#bLive").checked; tabSet("vote-show-counts", T.live ? "1" : "0"); T.shown = null; renderStage(); });
   on("bPhone", openPhone);
+  on("bPeek", openPeek);
   on("bClose", () => act({ status:"closed" }));
   on("bReopen", () => act({ status:"open" }));
   on("bCancel", () => {
@@ -900,13 +931,18 @@ function openSeatPop(seat, keep){
   const v = pop.querySelector("#pVoid"); if (v) v.onclick = async () => { if (await act({ ["ballots." + sk(seat)]: DEL }, `${seat} 號的選票已退回`)) closeSeatPop(); };
   const k = pop.querySelector("#pKick"); if (k) k.onclick = async () => { if (await act({ ["present." + sk(seat)]: DEL })) closeSeatPop(); };
 }
+function openPeek(){
+  const w = window.open(location.pathname + (DEMO ? "?demo&peek" : "?peek"), "votepeek", "popup,width=560,height=860");
+  if (!w) return toast("瀏覽器擋住了彈出視窗，請允許這個網站開啟視窗", true);
+  toast("票數小視窗已開啟，記得拖到投影看不到的螢幕");
+}
 function openPhone(){
   const url = location.origin + location.pathname;
   const how = T.mode === "code"
     ? `<li>在首頁點「用會場代碼接手既有會場」，輸入 <b style="font-family:var(--serif);letter-spacing:.12em">${esc(T.uid)}</b>。</li>`
     : T.mode === "google" ? `<li>用同一個 Google 帳號登入。</li>` : `<li>展示模式只能在這台電腦的分頁間互通，請開新分頁試。</li>`;
   $("#phoneBody").innerHTML = `<p>投影的電腦保持「不顯示票數」，你自己的手機打開同一個會場，勾選「顯示票數」，就能私下看到每個選項的票數和記名明細。兩邊同步，勾選只影響那一台。</p>
-    <ol><li>手機打開 <b>${esc(url)}</b></li>${how}<li>在投票畫面勾選「顯示票數（這台螢幕）」。</li></ol>
+    <ol><li>手機打開 <b>${esc(url)}</b></li>${how}<li>在投票畫面勾選「顯示票數（這個分頁）」。</li></ol>
     <p>手機也能直接按「截止收票」「下一場」，可以拿著手機在教室走動操作。</p>`;
   $("#dlgPhone").showModal();
 }
@@ -925,13 +961,13 @@ function openSettings(first){
 function renderHistory(){
   const list = Object.entries(T.room.history || {}).sort((a, b) => a[1].at - b[1].at);
   if (!list.length) { $("#histBody").innerHTML = `<p>還沒有紀錄。每按一次「下一場」，那一場的結果就會存到這裡。</p>`; return; }
-  $("#histBody").innerHTML = (T.live ? "" : `<p class="hint-line">這台螢幕設定為不顯示票數，所以只列出結果。要看票數，在投票畫面勾選「顯示票數（這台螢幕）」，或下載 CSV。</p>`) + list.map(([id, h]) => {
+  $("#histBody").innerHTML = (T.live ? "" : `<p class="hint-line">這個分頁設定為不顯示票數，所以只列出結果。要看票數，在投票畫面勾選「顯示票數（這個分頁）」，或下載 CSV。</p>`) + list.map(([id, h]) => {
     const t = histTally(h), res = resultOf(t.counts, h.quota);
     const d = new Date(h.at);
     let ranking;
     if (T.live) ranking = h.opts.map((o, i) => [o, t.counts[i], i]).sort((a, b) => b[1] - a[1]).map(([o, c, i]) => `<span class="hr${res.elected.includes(i) ? " w" : ""}">${esc(o)}：${c} 票${res.elected.includes(i) ? `（${winWord(h)}）` : ""}</span>`).join("");
     else ranking = res.elected.length ? `<span class="hr w">${winWord(h)}：${res.elected.map(i => esc(h.opts[i])).join("、")}</span>` + (res.tied.length ? `<span class="hr">同票：${res.tied.map(i => esc(h.opts[i])).join("、")}</span>` : "")
-      : res.tied.length ? `<span class="hr">同票：${res.tied.map(i => esc(h.opts[i])).join("、")}</span>` : `<span class="hr">這台螢幕不顯示票數</span>`;
+      : res.tied.length ? `<span class="hr">同票：${res.tied.map(i => esc(h.opts[i])).join("、")}</span>` : `<span class="hr">這個分頁不顯示票數</span>`;
     return `<div class="hist-item"><h4>${esc(h.title)}</h4><div class="meta">${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}，${h.kind === "poll" ? "表決" : "選舉"}，${goalText(h)}，收 ${t.n} 張${h.named === false ? "，不記名" : ""}${h.tie ? "，同票後已重投" : ""}</div><div class="res">${ranking}</div></div>`;
   }).join("");
 }
@@ -1133,6 +1169,7 @@ function renderDone(){
 }
 
 /* ================= 啟動 ================= */
+if (PEEK) { document.body.classList.add("peek"); }
 if (IS_STUDENT) bootStudent();
 else { bindTeacherChrome(); bootTeacher(); }
 </script>
